@@ -24,7 +24,7 @@ f run
 IOS(无企业签名，请自行签名)
 
 ```
-f build ipa --no-codesign
+f build ipa
 ```
 
 ADNDROID
