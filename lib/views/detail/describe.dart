@@ -1,5 +1,8 @@
+import '/model/film_play_info/relate.dart';
+
 import '/model/film_play_info/data.dart';
-import '/model/film_play_info/detail.dart';
+// import '/model/film_play_info/detail.dart';
+import '/views/detail/related.dart';
 import '/plugins.dart';
 
 class Describe extends StatefulWidget {
@@ -11,8 +14,12 @@ class Describe extends StatefulWidget {
 }
 
 class _DescribeState extends State<Describe> {
-  Detail? get _detail {
-    return widget.data?.detail;
+  // Detail? get _detail {
+  //   return widget.data?.detail;
+  // }
+
+  List<Relate> get _relate {
+    return widget.data?.relate ?? [];
   }
 
   @override
@@ -25,9 +32,9 @@ class _DescribeState extends State<Describe> {
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              Text(
-                (_detail?.descriptor?.blurb ?? '').trim(),
-              ),
+              Related(
+                list: _relate,
+              )
             ],
           ),
         ),

@@ -57,6 +57,7 @@ dependencies:
   path_provider: ^2.1.4
   marquee: ^2.2.3
   carousel_slider: ^5.0.0
+  flutter_html: ^3.0.0-beta.2
 
 dependency_overrides:
   meta: ">=1.11.0 <1.15.0"

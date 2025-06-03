@@ -1,3 +1,5 @@
+import 'package:flutter_html/flutter_html.dart';
+import '/widgets/expandable.dart';
 import '/model/film_play_info/data.dart';
 import '/model/film_play_info/detail.dart';
 import '/model/film_play_info/list.dart';
@@ -17,6 +19,8 @@ class Series extends StatefulWidget {
 
 class _SeriesState extends State<Series> {
   _SeriesState();
+  final smoothExpandableKey = GlobalKey<SmoothExpandableState>();
+  bool _isOpen = false;
 
   @override
   void initState() {
@@ -41,22 +45,56 @@ class _SeriesState extends State<Series> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  detail?.name ?? '',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            detail?.name ?? '',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            (detail?.descriptor?.subTitle == "" ||
+                                    detail?.descriptor?.subTitle == null)
+                                ? '暂无数据'
+                                : (detail?.descriptor?.subTitle ?? '暂无数据'),
+                            style: TextStyle(
+                              color: Theme.of(context).disabledColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: _isOpen
+                        ? const Icon(Icons.expand_less)
+                        : const Icon(Icons.expand_more),
+                    onPressed: () {
+                      smoothExpandableKey.currentState?.toggle();
+                    },
+                  )
+                ],
               ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  (detail?.descriptor?.subTitle == "" ||
-                          detail?.descriptor?.subTitle == null)
-                      ? '暂无数据'
-                      : (detail?.descriptor?.subTitle ?? '暂无数据'),
-                  style: TextStyle(
-                    color: Theme.of(context).disabledColor,
+              SmoothExpandable(
+                key: smoothExpandableKey,
+                onExpandChanged: (value) {
+                  setState(() {
+                    _isOpen = value;
+                  });
+                },
+                child: Card(
+                  margin: const EdgeInsets.only(top: 12, bottom: 12),
+                  child: Html(
+                    data: detail?.descriptor?.content ?? '暂无介绍',
                   ),
                 ),
               ),

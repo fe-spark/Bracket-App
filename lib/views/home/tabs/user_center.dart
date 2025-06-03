@@ -109,9 +109,23 @@ class _UserCenterTabState extends State<UserCenterTab>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      Text(
+                                        '当前视频源',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Colors.grey[200],
+                                            ),
+                                      ),
+                                      const SizedBox(
+                                        height: 4,
+                                      ),
                                       FittedBox(
                                         child: Text(
-                                          videoSourceStore.data?.actived ?? '',
+                                          getDomainName(
+                                              videoSourceStore.data?.actived ??
+                                                  ''),
                                           style: Theme.of(context)
                                               .textTheme
                                               .titleMedium
@@ -123,18 +137,7 @@ class _UserCenterTabState extends State<UserCenterTab>
                                           softWrap: false,
                                         ),
                                       ),
-                                      const SizedBox(
-                                        height: 4,
-                                      ),
-                                      Text(
-                                        '当前视频源',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: Colors.grey[200],
-                                            ),
-                                      )
+
                                       // ElevatedButton.icon(
                                       //   style: ButtonStyle(
                                       //     backgroundColor:

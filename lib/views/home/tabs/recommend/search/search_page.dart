@@ -120,7 +120,10 @@ class _SearchListState extends State<SearchList> {
     });
     var res = await Api.searchFilm(
       context: context,
-      queryParameters: {'keyword': widget.query, 'current': _current},
+      queryParameters: {
+        'keyword': widget.query,
+        'current': _current,
+      },
     );
 
     if (widget.query.isNotEmpty) {
