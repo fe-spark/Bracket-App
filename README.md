@@ -16,7 +16,7 @@ style="margin-right: 10px" src="https://img.shields.io/badge/fvm-v3.1.7-yellow">
 ## Getting Started
 
 ```
-flutter run
+f run
 ```
 
 ## Build
@@ -24,13 +24,13 @@ flutter run
 IOS(无企业签名，请自行签名)
 
 ```
-flutter build ipa
+f build ipa --no-codesign
 ```
 
 ADNDROID
 
 ```
-flutter build apk
+f build apk
 ```
 
 ## Preview
@@ -59,7 +59,7 @@ flutter build apk
 
 关于影视源问题
 
-> 提供官方免费源`https://film.fe-spark.cn/api/`(末尾一定要带`/`),因为服务器带宽较低，经常访问失败，还请谅解，如有条件，请自行部署好自己的[GoFilm](https://github.com/ProudMuBai/GoFilm)。
+> 提供官方免费源`https://film.fe-spark.cn/api/`(末尾可不带`/`), 由于服务器带宽较低，经常访问失败，还请谅解，如有条件，请自行部署好自己的[GoFilm](https://github.com/ProudMuBai/GoFilm)。
 
 ## Write at the end
 

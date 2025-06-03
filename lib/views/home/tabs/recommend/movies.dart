@@ -30,7 +30,7 @@ class MovieGrid extends StatelessWidget {
                   (e) {
                     return SizedBox(
                       width: 120,
-                      height: 240,
+                      height: 220,
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pushNamed(

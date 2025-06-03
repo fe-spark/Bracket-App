@@ -1,3 +1,5 @@
+// import "/views/detail/related.dart";
+
 import '/plugins.dart';
 import "package:bracket/model/film_play_info/detail.dart";
 import "/model/film_play_info/data.dart" show Data;
@@ -34,7 +36,8 @@ class _DetailPageState extends State<DetailPage> {
   final double _playerAspectRatio = 16 / 9;
   final List<MyTab> _tabs = [
     MyTab(icon: const Icon(Icons.abc_outlined), label: '详情', key: UniqueKey()),
-    MyTab(icon: const Icon(Icons.abc_outlined), label: '简介', key: UniqueKey()),
+    MyTab(
+        icon: const Icon(Icons.abc_outlined), label: '相关推荐', key: UniqueKey()),
   ];
 
   Data? _data;
