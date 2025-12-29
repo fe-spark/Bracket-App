@@ -21,13 +21,36 @@ class ThemeProvider {
 
   ThemeData light() {
     final colorScheme = colors(Brightness.light);
+    // Tonal Theme: Uses tinted surfaces derived from Brand Color
     return _baseTheme(colorScheme).copyWith(
-      scaffoldBackgroundColor: Colors.white, // High contrast
-      appBarTheme: const AppBarTheme(
+      scaffoldBackgroundColor:
+          const Color(0xFFF7F6FC), // Pale Lavender Background
+      appBarTheme: AppBarTheme(
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black, // Sharp text
-        iconTheme: IconThemeData(color: Colors.black),
+        centerTitle: true,
+        backgroundColor:
+            colorScheme.surface, // Tinted AppBar matches background
+        foregroundColor: colorScheme.onSurface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        surfaceTintColor: Colors.transparent,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 4, // 增加阴影以"高亮"
+        shadowColor: colorScheme.shadow.withValues(alpha: 0.05),
+        color: Colors.white, // 纯白卡片
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24), // 更大圆角
+          side: BorderSide.none,
+        ),
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        // Tinted Input
+        // border/enabledBorder/focusedBorder properties handled in _baseTheme
       ),
     );
   }
@@ -38,8 +61,21 @@ class ThemeProvider {
       scaffoldBackgroundColor: Colors.black,
       appBarTheme: const AppBarTheme(
         elevation: 0,
+        centerTitle: true,
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
+      ),
+      // Dark Mode Cards need to be dark gray
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: const Color(0xFF1C1C1E), // Apple Dark Gray
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide.none,
+        ),
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
       ),
     );
   }
@@ -47,49 +83,45 @@ class ThemeProvider {
   ThemeData _baseTheme(ColorScheme colorScheme) {
     return ThemeData(
       useMaterial3: true,
+      splashFactory: NoSplash.splashFactory,
       colorScheme: colorScheme,
       brightness: colorScheme.brightness,
       primaryColor: colorScheme.primary,
+      // Default Card Theme (overridden in light/dark for specific colors)
       cardTheme: CardThemeData(
-        elevation: 0, // Flat for modern look, use border
+        elevation: 0,
         color: colorScheme.surfaceContainerLow,
-        surfaceTintColor: Colors.transparent,
-        shadowColor: Colors.black12,
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-          ),
+          side: BorderSide.none,
         ),
-        clipBehavior: Clip.antiAlias,
-        margin: EdgeInsets.zero,
       ),
       listTileTheme: ListTileThemeData(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        iconColor: colorScheme.primary, // Highlight icons
+        iconColor: colorScheme.primary,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-          ),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -132,10 +164,20 @@ class ThemeProvider {
       dividerTheme: DividerThemeData(
         space: 1,
         thickness: 1,
-        color: colorScheme.outlineVariant.withValues(alpha: 0.2),
+        color:
+            colorScheme.outlineVariant.withValues(alpha: 0.1), // Faint divider
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       chipTheme: ChipThemeData(
-          backgroundColor: colorScheme.surfaceContainer,
+          backgroundColor:
+              colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           labelStyle: TextStyle(color: colorScheme.onSurface),
           side: BorderSide.none,
           shape: const StadiumBorder()),

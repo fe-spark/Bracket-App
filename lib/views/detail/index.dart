@@ -103,28 +103,23 @@ class _DetailPageState extends State<DetailPage> {
       //   onPressed: () {},
       //   child: const Icon(Icons.expand),
       // ),
-      body: SafeArea(
-        child: OrientationBuilder(
-          builder: (context, orientation) {
-            return Flex(
-              direction: orientation == Orientation.portrait
-                  ? Axis.vertical
-                  : Axis.horizontal,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: orientation == Orientation.portrait ? 0 : 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          offset: const Offset(0, 4),
-                          blurRadius: 8,
-                        ),
-                      ],
-                    ),
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return Flex(
+            direction: orientation == Orientation.portrait
+                ? Axis.vertical
+                : Axis.horizontal,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: orientation == Orientation.portrait ? 0 : 1,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                  ),
+                  child: SafeArea(
+                    bottom: orientation != Orientation.portrait,
+                    right: orientation == Orientation.portrait,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         Size size = MediaQuery.of(context).size;
@@ -162,24 +157,28 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                   ),
                 ),
-                if (orientation == Orientation.portrait)
-                  Container(
-                    height: 8,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest
-                        .withValues(alpha: 0.4),
-                  )
-                else
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Container(
-                      width: 0.5,
-                      color: Theme.of(context).dividerColor,
-                    ),
+              ),
+              if (orientation == Orientation.portrait)
+                Container(
+                  height: 8,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withValues(alpha: 0.4),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Container(
+                    width: 0.5,
+                    color: Theme.of(context).dividerColor,
                   ),
-                Expanded(
-                  flex: 1,
+                ),
+              Expanded(
+                flex: 1,
+                child: SafeArea(
+                  top: false,
+                  left: orientation == Orientation.portrait,
                   child: DefaultTabController(
                     length: _tabs.length,
                     child: Column(
@@ -218,10 +217,10 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                   ),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -170,7 +170,8 @@ class _FilterPageState extends State<FilterPage>
 
     return Scaffold(
       floatingActionButton: _scrollPixels > mediaQuery.size.height
-          ? ElevatedButton(
+          ? FloatingActionButton(
+              heroTag: null,
               onPressed: () {
                 if (_scrollController.hasClients) _scrollController.jumpTo(0);
               },

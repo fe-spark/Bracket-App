@@ -25,6 +25,13 @@ class SearchStore with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
+  void removeSearchRecord(String str) async {
+    List<String> currentList = List<String>.from(data);
+    currentList.remove(str);
+    await PreferenceUtil.setStringList(preferenceKey, currentList);
+    notifyListeners();
+  }
+
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);

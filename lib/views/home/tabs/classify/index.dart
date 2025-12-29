@@ -23,11 +23,16 @@ class _ClassifyTabState extends State<ClassifyTab>
   //   return _data?.content ?? [];
   // }
 
-  Future _fetchData() async {
-    setState(() {
-      _loading = true;
-      _error = false;
-    });
+  Future _fetchData({bool refresh = false}) async {
+    if (!refresh) {
+      setState(() {
+        _loading = true;
+        _error = false;
+      });
+    } else {
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    if (!mounted) return;
     var res = await Api.index(
       context: context,
     );
@@ -71,79 +76,108 @@ class _ClassifyTabState extends State<ClassifyTab>
     super.dispose();
   }
 
+  IconData _getCategoryIcon(String? name) {
+    if (name == null) return Icons.widgets_rounded;
+    if (name.contains('电影')) return Icons.movie_creation_rounded;
+    if (name.contains('剧')) return Icons.tv_rounded;
+    if (name.contains('漫')) return Icons.animation_rounded;
+    if (name.contains('综')) return Icons.mic_external_on_rounded;
+    if (name.contains('录') || name.contains('纪')) return Icons.videocam_rounded;
+    return Icons.category_rounded;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(
         top: false,
         bottom: false,
         child: NestedScrollView(
-          floatHeaderSlivers: true,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return [
               SliverAppBar(
-                backgroundColor: Theme.of(context).primaryColor,
+                backgroundColor: colorScheme.primary,
                 shape: RoundedRectangleBorder(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(36),
-                    bottomRight: Radius.circular(36),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(32),
                   ),
                   side: BorderSide(
-                    color: Theme.of(context).primaryColor.withOpacity(0.5),
+                    color: colorScheme.primary.withValues(alpha: 0.5),
                     width: 4,
                     strokeAlign: BorderSide.strokeAlignOutside,
                   ),
                 ),
-                // foregroundColor: Colors.red,
+                expandedHeight: 140.0,
                 pinned: true,
-                floating: true,
-                expandedHeight: 100.0,
+                stretch: true,
                 flexibleSpace: FlexibleSpaceBar(
-                    collapseMode: CollapseMode.pin,
-                    centerTitle: false,
-                    title: const Text(
-                      '影片分类',
-                    ),
-                    background: Stack(
-                      children: [
-                        Positioned(
-                          left: 0,
-                          top: 0,
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            clipBehavior: Clip.antiAlias,
-                            decoration: BoxDecoration(
-                              color:
-                                  Theme.of(context).colorScheme.inversePrimary,
-                              image: const DecorationImage(
-                                fit: BoxFit.cover,
-                                image: AssetImage(
-                                  'assets/images/header.jpeg',
-                                ),
-                              ),
-                              borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(36),
-                                bottomRight: Radius.circular(36),
-                              ),
-                            ),
-                          ),
+                  collapseMode: CollapseMode.pin,
+                  centerTitle: false,
+                  titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+                  title: const Text(
+                    '影片分类',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(0, 1),
+                          blurRadius: 4,
+                          color: Colors.black45,
                         ),
                       ],
-                    )),
+                    ),
+                  ),
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(32),
+                        ),
+                        child: Image.asset(
+                          'assets/images/header.jpeg',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      // Gradient Overlay: Fades to Primary Theme Color
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(32),
+                          ),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              colorScheme.primary.withValues(alpha: 0.8),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ];
           },
-          body: LoadingViewBuilder(
-            loading: _loading,
-            builder: (_) {
-              return _error
-                  ? Error(
-                      onRefresh: _fetchData,
-                    )
-                  : _listContent(context);
-            },
+          body: RefreshIndicator(
+            color: Colors.white,
+            backgroundColor: colorScheme.primary,
+            onRefresh: () => _fetchData(refresh: true),
+            child: LoadingViewBuilder(
+              loading: _loading,
+              builder: (_) {
+                return _error
+                    ? Error(
+                        onRefresh: _fetchData,
+                      )
+                    : _listContent(context);
+              },
+            ),
           ),
         ),
       ),
@@ -151,93 +185,117 @@ class _ClassifyTabState extends State<ClassifyTab>
   }
 
   Widget _listContent(_) {
-    return ListView(
-      padding: EdgeInsets.only(
-        top: 24,
-        bottom: MediaQuery.of(_).padding.bottom,
-      ),
-      children: [
-        Column(
+    final colorScheme = Theme.of(context).colorScheme;
+    return SafeArea(
+      top: false,
+      bottom: true,
+      child: MediaQuery.removePadding(
+        context: context,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           children: [
-            ...?_data?.category?.children!.map(
-              (e) {
+            ...?_data?.category?.children!.asMap().entries.map(
+              (entry) {
+                int index = entry.key;
+                var e = entry.value;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(
-                      height: 12,
-                    ),
                     Padding(
-                      padding: const EdgeInsets.only(left: 24),
-                      child: Row(
-                        children: [
-                          const SizedBox(
-                            height: 12,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pushNamed(
-                                MYRouter.filterPagePath,
-                                arguments: {
-                                  "pid": e.id,
-                                },
-                              );
-                            },
-                            child: Text(
+                      padding: const EdgeInsets.only(bottom: 12, left: 4),
+                      child: GestureDetector(
+                        onTap: () {
+                          // Navigator.of(context).pushNamed(
+                          //   MYRouter.filterPagePath,
+                          //   arguments: {
+                          //     "pid": e.id,
+                          //   },
+                          // );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _getCategoryIcon(e.name),
+                              color: colorScheme.primary,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
                               e.name ?? '',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.fontSize,
+                                fontSize: 18,
+                                color: colorScheme.onSurface,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Card(
-                      margin: const EdgeInsets.fromLTRB(8, 12, 8, 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Wrap(
-                          spacing: 8,
-                          alignment: WrapAlignment.start,
-                          crossAxisAlignment: WrapCrossAlignment.start,
-                          children: e.children!
-                              .map(
-                                (item) => ChoiceChip(
-                                  label: Text(item.name ?? ''),
-                                  selected: false,
-                                  onSelected: (newValue) {
-                                    Navigator.of(context).pushNamed(
-                                      MYRouter.filterPagePath,
-                                      arguments: {
-                                        "pid": e.id,
-                                        "category": item.id
-                                      },
-                                    );
-                                  },
-                                ),
-                              )
-                              .toList(),
+                            // const SizedBox(width: 4),
+                            // Icon(
+                            //   Icons.arrow_forward_ios_rounded,
+                            //   size: 14,
+                            //   color: colorScheme.onSurface.withValues(alpha: 0.5),
+                            // ),
+                          ],
                         ),
                       ),
                     ),
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 2.4,
+                      padding: const EdgeInsets.only(top: 4),
+                      children: e.children!.map(
+                        (item) {
+                          return InkWell(
+                            onTap: () {
+                              Navigator.of(context).pushNamed(
+                                MYRouter.filterPagePath,
+                                arguments: {"pid": e.id, "category": item.id},
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(12),
+                                // No shadow for cleaner "Flat Tile" look, or keeping it subtle
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: colorScheme.shadow
+                                        .withValues(alpha: 0.05),
+                                    offset: const Offset(0, 2),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                item.name ?? '',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: colorScheme.onSurface,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ).toList(),
+                    ),
+                    // 最后一个不要
+                    if (index != _data!.category!.children!.length - 1)
+                      const SizedBox(height: 32), // Space between sections
                   ],
                 );
               },
             ),
-            const SizedBox(
-              height: 12,
-            ),
           ],
-        )
-      ],
+        ),
+      ),
     );
   }
 

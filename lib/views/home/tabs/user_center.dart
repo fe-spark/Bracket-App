@@ -34,7 +34,7 @@ class _UserCenterTabState extends State<UserCenterTab>
       // This fires for each state change. Callbacks above fire only for
       // specific state transitions.
       onStateChange: (_) {
-        print(_);
+        // print(_);
       },
     );
     super.initState();
@@ -63,7 +63,7 @@ class _UserCenterTabState extends State<UserCenterTab>
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -78,83 +78,69 @@ class _UserCenterTabState extends State<UserCenterTab>
                       color: Theme.of(context).primaryColor,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(50, 30, 50, 30),
-                      child: Flex(
-                        direction: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 32),
+                      child: Row(
                         children: [
-                          Flexible(
-                            flex: 1,
-                            fit: FlexFit.tight,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                          // Avatar / Icon
+                          Expanded(
+                            flex: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.white,
+                              ),
+                              width: 60,
+                              height: 60,
+                              child: const NoDataView(),
+                            ),
+                          ),
+                          // Text Info
+                          const SizedBox(
+                            width: 30,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  flex: 0,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
+                                Text(
+                                  '当前视频源',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    getDomainName(
+                                        videoSourceStore.data?.actived ?? ''),
+                                    style: const TextStyle(
                                       color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
                                     ),
-                                    width: 60,
-                                    height: 60,
-                                    child: const NoDataView(),
                                   ),
                                 ),
-                                const SizedBox(
-                                  width: 30,
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '当前视频源',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: Colors.grey[200],
-                                            ),
-                                      ),
-                                      const SizedBox(
-                                        height: 4,
-                                      ),
-                                      FittedBox(
-                                        child: Text(
-                                          getDomainName(
-                                              videoSourceStore.data?.actived ??
-                                                  ''),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                color: Colors.grey[100],
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                          overflow: TextOverflow.ellipsis,
-                                          softWrap: false,
-                                        ),
-                                      ),
-
-                                      // ElevatedButton.icon(
-                                      //   style: ButtonStyle(
-                                      //     backgroundColor:
-                                      //         MaterialStatePropertyAll(
-                                      //       Colors.black87.withOpacity(.1),
-                                      //     ),
-                                      //   ),
-                                      //   onPressed: () {},
-                                      //   icon: const Icon(
-                                      //     Icons.edit_outlined,
-                                      //     color: Colors.blueAccent,
-                                      //   ),
-                                      //   label: const Text('修改'),
-                                      // ),
-                                    ],
-                                  ),
-                                ),
+                                // const SizedBox(height: 8),
+                                // Container(
+                                //   padding: const EdgeInsets.symmetric(
+                                //       horizontal: 10, vertical: 4),
+                                //   decoration: BoxDecoration(
+                                //     color: Colors.white.withValues(alpha: 0.2),
+                                //     borderRadius: BorderRadius.circular(20),
+                                //   ),
+                                //   child: const Text(
+                                //     '已连接',
+                                //     style: TextStyle(
+                                //       color: Colors.white,
+                                //       fontSize: 12,
+                                //     ),
+                                //   ),
+                                // ),
                               ],
                             ),
                           ),
@@ -164,7 +150,7 @@ class _UserCenterTabState extends State<UserCenterTab>
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Card(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
@@ -172,51 +158,83 @@ class _UserCenterTabState extends State<UserCenterTab>
                         children: [
                           ListTile(
                             title: const Text('观看历史'),
-                            leading: const Icon(Icons.clear_all),
-                            trailing:
-                                const Icon(Icons.keyboard_arrow_right_outlined),
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.purple.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.history,
+                                  color: Colors.purple, size: 22),
+                            ),
+                            trailing: Icon(Icons.chevron_right,
+                                color: Theme.of(context).disabledColor),
                             onTap: () {
                               Navigator.of(context)
                                   .pushNamed(MYRouter.historyPagePath);
                             },
                           ),
                           const Divider(
-                            indent: 12,
-                            endIndent: 12,
+                            indent: 70,
+                            endIndent: 16,
                           ),
                           ListTile(
                             title: const Text('系统主题'),
-                            leading: const Icon(Icons.border_color),
-                            trailing:
-                                const Icon(Icons.keyboard_arrow_right_outlined),
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.palette_outlined,
+                                  color: Colors.blue, size: 22),
+                            ),
+                            trailing: Icon(Icons.chevron_right,
+                                color: Theme.of(context).disabledColor),
                             onTap: () {
                               Navigator.pushNamed(
                                   context, MYRouter.themePagePath);
                             },
                           ),
                           const Divider(
-                            indent: 12,
-                            endIndent: 12,
+                            indent: 70,
+                            endIndent: 16,
                           ),
                           ListTile(
                             title: const Text('意见反馈'),
-                            leading: const Icon(Icons.send),
-                            trailing:
-                                const Icon(Icons.keyboard_arrow_right_outlined),
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.send_outlined,
+                                  color: Colors.red, size: 22),
+                            ),
+                            trailing: Icon(Icons.chevron_right,
+                                color: Theme.of(context).disabledColor),
                             onTap: () {
                               Navigator.of(context)
                                   .pushNamed(MYRouter.feedbackPagePath);
                             },
                           ),
                           const Divider(
-                            indent: 12,
-                            endIndent: 12,
+                            indent: 70,
+                            endIndent: 16,
                           ),
                           ListTile(
                             title: const Text('关于'),
-                            leading: const Icon(Icons.sentiment_satisfied_alt),
-                            trailing:
-                                const Icon(Icons.keyboard_arrow_right_outlined),
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.sentiment_satisfied_alt,
+                                  color: Colors.amber, size: 22),
+                            ),
+                            trailing: Icon(Icons.chevron_right,
+                                color: Theme.of(context).disabledColor),
                             onTap: () {
                               Navigator.of(context)
                                   .pushNamed(MYRouter.aboutPagePath);
@@ -231,12 +249,24 @@ class _UserCenterTabState extends State<UserCenterTab>
                   height: 12,
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Card(
                     child: ListTile(
-                      title: const Text('退出影视源'),
-                      leading: const Icon(Icons.exit_to_app),
-                      trailing: const Icon(Icons.keyboard_arrow_right_outlined),
+                      title: const Text(
+                        '退出影视源',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.logout,
+                            color: Colors.red, size: 22),
+                      ),
+                      trailing: Icon(Icons.chevron_right,
+                          color: Theme.of(context).disabledColor),
                       onTap: () {
                         showDialog(
                           context: context,
