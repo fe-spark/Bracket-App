@@ -1,4 +1,4 @@
-import 'package:better_player/better_player.dart';
+import 'package:better_player_plus/better_player_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '/model/film_play_info/detail.dart';
 
@@ -52,7 +52,9 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
       autoPlay: true,
       controlsConfiguration: BetterPlayerControlsConfiguration(
         playerTheme: BetterPlayerTheme.custom,
-        customControlsBuilder: (BetterPlayerController controller, visibility) {
+        customControlsBuilder: (BetterPlayerController controller,
+            Function(bool) visibility,
+            BetterPlayerControlsConfiguration configuration) {
           var list = widget.detail?.list;
           var originIndex = _playVideoIdsStore?.originIndex ?? 0;
           var teleplayIndex = _playVideoIdsStore?.teleplayIndex ?? 0;

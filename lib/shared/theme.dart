@@ -44,7 +44,7 @@ class ThemeProvider {
     return const TextTheme().copyWith();
   }
 
-  CardTheme cardTheme(ColorScheme colors) {
+  CardThemeData cardTheme(ColorScheme colors) {
     return CardTheme.of(context).copyWith(
       elevation: 10,
       color: colors.surface,
@@ -84,8 +84,8 @@ class ThemeProvider {
     );
   }
 
-  TabBarTheme tabBarTheme(ColorScheme colors) {
-    return TabBarTheme(
+  TabBarThemeData tabBarTheme(ColorScheme colors) {
+    return TabBarThemeData(
       labelColor: colors.secondary,
       unselectedLabelColor: colors.onSurfaceVariant,
       indicator: BoxDecoration(
@@ -99,8 +99,8 @@ class ThemeProvider {
     );
   }
 
-  BottomAppBarTheme bottomAppBarTheme(ColorScheme colors) {
-    return BottomAppBarTheme(
+  BottomAppBarThemeData bottomAppBarTheme(ColorScheme colors) {
+    return BottomAppBarThemeData(
       color: colors.surface,
       elevation: 0,
     );
