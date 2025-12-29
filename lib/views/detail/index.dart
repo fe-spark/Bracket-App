@@ -115,7 +115,16 @@ class _DetailPageState extends State<DetailPage> {
                 Expanded(
                   flex: orientation == Orientation.portrait ? 0 : 1,
                   child: Container(
-                    color: Colors.black,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          offset: const Offset(0, 4),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         Size size = MediaQuery.of(context).size;
@@ -154,7 +163,13 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                 ),
                 if (orientation == Orientation.portrait)
-                  Container()
+                  Container(
+                    height: 8,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.4),
+                  )
                 else
                   Padding(
                     padding: const EdgeInsets.all(10),
