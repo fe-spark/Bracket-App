@@ -19,7 +19,7 @@ class _RelatedState extends State<Related> {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      // padding: const EdgeInsets.all(10.0),
+      padding: EdgeInsets.zero,
       itemCount: widget.list.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
