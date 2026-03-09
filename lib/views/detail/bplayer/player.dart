@@ -54,15 +54,19 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             BetterPlayerControlsConfiguration configuration) {
           var list = widget.detail?.list;
           var originIndex = _playVideoIdsStore?.originIndex ?? 0;
-          var teleplayIndex = _playVideoIdsStore?.teleplayIndex ?? 0;
+          int? teleplayIndex = _playVideoIdsStore?.teleplayIndex;
           var linkList = list?[originIndex].linkList;
 
-          bool hasNext = teleplayIndex < linkList!.length - 1;
-          bool hasPrev = teleplayIndex > 0;
+          bool hasNext = teleplayIndex != null &&
+              linkList != null &&
+              teleplayIndex < linkList.length - 1;
+          bool hasPrev = teleplayIndex != null && teleplayIndex > 0;
 
           return BetterPlayerMaterialControls(
             title: Text(
-              '${widget.detail?.name ?? ''}-${linkList[teleplayIndex].episode ?? ''}',
+              teleplayIndex != null && linkList != null
+                  ? '${widget.detail?.name ?? ''}-${linkList[teleplayIndex].episode ?? ''}'
+                  : '${widget.detail?.name ?? ''}-未选择',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -105,6 +109,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     _originIndex = _playVideoIdsStore!.originIndex;
     _teleplayIndex = _playVideoIdsStore!.teleplayIndex;
 
+    if (_teleplayIndex == null) return null;
+
     String? url = list?[_originIndex!].linkList?[_teleplayIndex!].link;
 
     return url;
@@ -121,8 +127,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
       _betterPlayerController?.setupDataSource(dataSource).then((value) {
         var playVideoIdsStore = context.read<PlayVideoIdsStore>();
-        _betterPlayerController
-            ?.seekTo(Duration(seconds: playVideoIdsStore.startAt));
+        _betterPlayerController?.seekTo(
+            Duration(seconds: playVideoIdsStore.startAt ?? 0));
       });
     }
   }

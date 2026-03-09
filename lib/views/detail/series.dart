@@ -23,6 +23,7 @@ class _SeriesState extends State<Series> {
   bool _isOpen = false;
   int _selectedGroupIndex = 0;
   int? _lastTeleplayIndex;
+  final Map<int, int> _originGroupIndices = {};
 
   @override
   void initState() {
@@ -44,12 +45,20 @@ class _SeriesState extends State<Series> {
     // Auto-sync group index with currently playing teleplay index
     if (teleplayIndex != _lastTeleplayIndex) {
       _lastTeleplayIndex = teleplayIndex;
-      if (needsGrouping) {
+      if (teleplayIndex == null) {
+        _selectedGroupIndex = _originGroupIndices[originIndex] ?? 0;
+      } else if (needsGrouping) {
         _selectedGroupIndex = teleplayIndex ~/ groupSize;
+        _originGroupIndices[originIndex] = _selectedGroupIndex;
       }
     }
 
     int groupCount = (linkList.length / groupSize).ceil();
+
+    // Ensure _selectedGroupIndex is within valid range after source switch
+    if (_selectedGroupIndex >= groupCount) {
+      _selectedGroupIndex = 0;
+    }
     int groupStart = _selectedGroupIndex * groupSize;
     int groupEnd = (groupStart + groupSize).clamp(0, linkList.length);
     var visibleEpisodes = linkList.sublist(groupStart, groupEnd);
@@ -136,7 +145,7 @@ class _SeriesState extends State<Series> {
                               onSelected: (_) {
                                 context.read<PlayVideoIdsStore>().setVideoInfo(
                                     i,
-                                    teleplayIndex: 0,
+                                    teleplayIndex: null,
                                     startAt: 0);
                               });
                         }).toList(),
@@ -178,6 +187,7 @@ class _SeriesState extends State<Series> {
                                 onTap: () {
                                   setState(() {
                                     _selectedGroupIndex = index;
+                                    _originGroupIndices[originIndex] = index;
                                   });
                                 },
                                 child: AnimatedContainer(
