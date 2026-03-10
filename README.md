@@ -9,7 +9,7 @@ style="margin-right: 10px" src="https://img.shields.io/badge/fvm-v3.1.7-yellow">
 
 ## Film data source
 
-本项目通过[GoFilm](https://github.com/ProudMuBai/GoFilm)接入数据，如有条件可自行部署云端服务(项目中含有多种部署方案)
+本项目通过[Bracket-Film](https://github.com/fe-spark/Bracket-Film)接入数据，如需搭建视频源，可自行搭建[Bracket-Film](https://github.com/fe-spark/Bracket-Film)
 
 [网页版观影地址](https://film.fe-spark.cn/)
 
@@ -59,7 +59,7 @@ f build apk
 
 关于影视源问题
 
-> 提供官方免费源`https://film.fe-spark.cn/api/`(末尾可不带`/`), 由于服务器带宽较低，经常访问失败，还请谅解，如有条件，请自行部署好自己的[GoFilm](https://github.com/ProudMuBai/GoFilm)。
+> 提供官方免费源`https://film.fe-spark.cn/api/`(末尾可不带`/`), 由于服务器带宽较低，经常访问失败，还请谅解，如需搭建视频源，可自行搭建[Bracket-Film](https://github.com/fe-spark/Bracket-Film)。
 
 ## Write at the end
 
