@@ -23,11 +23,15 @@ class _SeriesState extends State<Series> {
   bool _isOpen = false;
   int _selectedGroupIndex = 0;
   int? _lastTeleplayIndex;
+  int? _lastActiveOriginIndex;
   int? _viewOriginIndex;
+  bool _lastDataNonNull = false;
   
   final ScrollController _scrollController = ScrollController();
   final ScrollController _groupScrollController = ScrollController();
+  final ScrollController _sourceScrollController = ScrollController();
   final GlobalKey _activeEpisodeKey = GlobalKey();
+  final Map<int, GlobalKey> _sourceKeyMap = {};
 
   @override
   void initState() {
@@ -38,25 +42,39 @@ class _SeriesState extends State<Series> {
   }
 
   @override
+  void didUpdateWidget(Series oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If data just arrived, trigger scroll
+    if (oldWidget.data == null && widget.data != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToActiveItem(immediate: true);
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     _groupScrollController.dispose();
+    _sourceScrollController.dispose();
     super.dispose();
   }
 
   void _scrollToActiveItem({bool immediate = false}) {
     if (!mounted) return;
 
-    // 1. Scroll main view to the active episode
-    if (_activeEpisodeKey.currentContext != null) {
-      Scrollable.ensureVisible(
-        _activeEpisodeKey.currentContext!,
-        duration: immediate ? Duration.zero : const Duration(milliseconds: 300),
-        alignment: 0.5,
-      );
+    final duration = immediate ? Duration.zero : const Duration(milliseconds: 300);
+
+    // 1. Scroll Volume: Source Selection Bar
+    if (_viewOriginIndex != null && _sourceKeyMap[_viewOriginIndex!]?.currentContext != null) {
+        Scrollable.ensureVisible(
+          _sourceKeyMap[_viewOriginIndex!]!.currentContext!,
+          duration: duration,
+          alignment: 0.5,
+        );
     }
 
-    // 2. Scroll group bar to active group
+    // 2. Scroll Volume: Group Bar
     if (_groupScrollController.hasClients) {
       // Approximate calculation: each group item is around 80px wide
       double targetOffset = (_selectedGroupIndex * 80.0) - 100.0;
@@ -64,8 +82,17 @@ class _SeriesState extends State<Series> {
       
       _groupScrollController.animateTo(
         targetOffset,
-        duration: immediate ? Duration.zero : const Duration(milliseconds: 300),
+        duration: duration,
         curve: Curves.easeInOut,
+      );
+    }
+
+    // 3. Scroll Volume: Main List (Episodes)
+    if (_activeEpisodeKey.currentContext != null) {
+      Scrollable.ensureVisible(
+        _activeEpisodeKey.currentContext!,
+        duration: duration,
+        alignment: 0.5,
       );
     }
   }
@@ -78,22 +105,44 @@ class _SeriesState extends State<Series> {
     int? activeOriginIndex = info.originIndex;
     int? teleplayIndex = info.teleplayIndex;
     
-    // Initial view sync or sync if active origin changed and we haven't manually switched view
-    _viewOriginIndex ??= activeOriginIndex;
+    // Unified Synchronization Logic
+    bool dataJustArrived = !_lastDataNonNull && list != null;
+    _lastDataNonNull = list != null;
+
+    bool stateChanged = false;
+
+    // A. Sync Source Index
+    if (activeOriginIndex != _lastActiveOriginIndex) {
+      _lastActiveOriginIndex = activeOriginIndex;
+      _viewOriginIndex = activeOriginIndex;
+      stateChanged = true;
+    }
     
-    var linkList = list?[_viewOriginIndex!]?.linkList ?? [];
+    // Initial fallback
+    if (_viewOriginIndex == null) {
+      _viewOriginIndex = 0;
+      stateChanged = true;
+    }
+    
+    var linkList = list != null && _viewOriginIndex! < list.length 
+        ? list[_viewOriginIndex!]?.linkList ?? [] 
+        : [];
 
     const int groupSize = 100;
     bool needsGrouping = linkList.length > groupSize;
 
-    // Auto-sync group index with currently playing teleplay index
-    if (teleplayIndex != _lastTeleplayIndex) {
+    // B. Sync Teleplay & Group Index
+    if (teleplayIndex != _lastTeleplayIndex || dataJustArrived) {
       _lastTeleplayIndex = teleplayIndex;
       if (teleplayIndex != null && needsGrouping) {
-        _selectedGroupIndex = teleplayIndex ~/ groupSize;
-        // Trigger scroll when index changes
-        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveItem());
+         _selectedGroupIndex = teleplayIndex ~/ groupSize;
       }
+      stateChanged = true;
+    }
+
+    // Unified Scroll Trigger
+    if (stateChanged || dataJustArrived) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveItem());
     }
 
     int groupCount = (linkList.length / groupSize).ceil();
@@ -178,12 +227,15 @@ class _SeriesState extends State<Series> {
                   ),
                   if (list != null)
                     SingleChildScrollView(
+                      controller: _sourceScrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       scrollDirection: Axis.horizontal,
                       child: Wrap(
                         spacing: 8,
                         children: list.mapIndexed((i, e) {
+                          _sourceKeyMap[i] = GlobalKey();
                           return ChoiceChip(
+                              key: _sourceKeyMap[i],
                               label: Text(e?.name ?? '未知源'),
                               selected: _viewOriginIndex == i,
                               onSelected: (_) {
