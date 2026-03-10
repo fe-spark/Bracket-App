@@ -23,7 +23,7 @@ class _SeriesState extends State<Series> {
   bool _isOpen = false;
   int _selectedGroupIndex = 0;
   int? _lastTeleplayIndex;
-  final Map<int, int> _originGroupIndices = {};
+  int? _viewOriginIndex; // Tracks which source is currently being VIEWED
 
   @override
   void initState() {
@@ -35,21 +35,22 @@ class _SeriesState extends State<Series> {
     var info = context.watch<PlayVideoIdsStore>();
     Detail? detail = widget.data?.detail;
     List<ListData?>? list = detail?.list;
-    int? originIndex = info.originIndex;
+    int? activeOriginIndex = info.originIndex;
     int? teleplayIndex = info.teleplayIndex;
-    var linkList = list?[originIndex]?.linkList ?? [];
+    
+    // Initial view sync or sync if active origin changed and we haven't manually switched view
+    _viewOriginIndex ??= activeOriginIndex;
+    
+    var linkList = list?[_viewOriginIndex!]?.linkList ?? [];
 
-    const int groupSize = 30;
+    const int groupSize = 100;
     bool needsGrouping = linkList.length > groupSize;
 
     // Auto-sync group index with currently playing teleplay index
     if (teleplayIndex != _lastTeleplayIndex) {
       _lastTeleplayIndex = teleplayIndex;
-      if (teleplayIndex == null) {
-        _selectedGroupIndex = _originGroupIndices[originIndex] ?? 0;
-      } else if (needsGrouping) {
+      if (teleplayIndex != null && needsGrouping) {
         _selectedGroupIndex = teleplayIndex ~/ groupSize;
-        _originGroupIndices[originIndex] = _selectedGroupIndex;
       }
     }
 
@@ -141,12 +142,11 @@ class _SeriesState extends State<Series> {
                         children: list.mapIndexed((i, e) {
                           return ChoiceChip(
                               label: Text(e?.name ?? '未知源'),
-                              selected: originIndex == i,
+                              selected: _viewOriginIndex == i,
                               onSelected: (_) {
-                                context.read<PlayVideoIdsStore>().setVideoInfo(
-                                    i,
-                                    teleplayIndex: null,
-                                    startAt: 0);
+                                setState(() {
+                                  _viewOriginIndex = i;
+                                });
                               });
                         }).toList(),
                       ),
@@ -187,7 +187,6 @@ class _SeriesState extends State<Series> {
                                 onTap: () {
                                   setState(() {
                                     _selectedGroupIndex = index;
-                                    _originGroupIndices[originIndex] = index;
                                   });
                                 },
                                 child: AnimatedContainer(
@@ -249,7 +248,7 @@ class _SeriesState extends State<Series> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
-                        child: list?[originIndex] != null && linkList.isNotEmpty
+                        child: list?[_viewOriginIndex!] != null && linkList.isNotEmpty
                             ? LayoutBuilder(
                                 builder: (context, constraints) {
                                   final containerWidth = constraints.maxWidth;
@@ -269,6 +268,7 @@ class _SeriesState extends State<Series> {
                                       // Get actual absolute index for selection check
                                       final absoluteIndex = groupStart + i;
                                       final isSelected =
+                                          _viewOriginIndex == activeOriginIndex &&
                                           absoluteIndex == teleplayIndex;
                                       final text = '${e.episode}';
 
@@ -295,10 +295,26 @@ class _SeriesState extends State<Series> {
                                         width: itemWidth,
                                         child: InkWell(
                                           onTap: () {
+                                            var historyStore =
+                                                context.read<HistoryStore>();
+                                            var historyData = historyStore.data;
+                                            var currentOriginId =
+                                                list?[_viewOriginIndex!]?.id;
+
+                                            // Try to find progress for this specific episode in history
+                                            var historyItem = historyData
+                                                .firstWhereOrNull((item) =>
+                                                    item['id'] == detail?.id &&
+                                                    item['originId'] ==
+                                                        currentOriginId &&
+                                                    item['teleplayIndex'] ==
+                                                        absoluteIndex);
+
                                             info.setVideoInfo(
-                                              info.originIndex,
+                                              _viewOriginIndex,
                                               teleplayIndex: absoluteIndex,
-                                              startAt: 0,
+                                              startAt:
+                                                  historyItem?['startAt'] ?? 0,
                                             );
                                           },
                                           borderRadius:

@@ -83,7 +83,6 @@ class MYRouter {
         SparkRoute(builder: (_, {arguments}) => const UnknownPage()),
   };
 
-  ///路由拦截
   static MaterialPageRoute generateRoute<T extends Object>(
       RouteSettings settings) {
     MaterialPageRoute route = MaterialPageRoute(

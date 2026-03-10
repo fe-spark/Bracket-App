@@ -15,7 +15,8 @@ class PlayVideoIdsStore with ChangeNotifier {
       {required int? teleplayIndex, required int? startAt}) {
     _originIndex = num ?? 0;
     _teleplayIndex = teleplayIndex;
-    _startAt = startAt;
+    _startAt = startAt ?? 0;
+
     notifyListeners();
   }
 }

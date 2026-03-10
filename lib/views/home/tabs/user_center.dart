@@ -275,7 +275,7 @@ class _UserCenterTabState extends State<UserCenterTab>
                               title: '提示',
                               content: '是否确认退出当前影视源？',
                               onConfirm: () async {
-                                videoSourceStore.clearStore();
+                                await videoSourceStore.clearStore();
                               },
                             );
                           },

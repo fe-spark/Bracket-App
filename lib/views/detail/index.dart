@@ -58,15 +58,14 @@ class _DetailPageState extends State<DetailPage> {
 
       var item = getHistory(id);
 
-      var originId = item?['originId'];
-      var originIndex =
-          _data?.detail?.list?.indexWhere((element) => originId == element.id);
-
-      if (originIndex != null && originIndex >= 0) {
+      if (item != null) {
+        var originId = item['originId'];
+        var originIndex = _data?.detail?.list?.indexWhere((element) => originId == element.id);
+        
         playIdsInfo.setVideoInfo(
-          originIndex,
-          teleplayIndex: item?['teleplayIndex'],
-          startAt: item?['startAt'],
+          (originIndex != null && originIndex >= 0) ? originIndex : 0,
+          teleplayIndex: item['teleplayIndex'] ?? 0,
+          startAt: item['startAt'] ?? 0,
         );
       } else {
         playIdsInfo.setVideoInfo(0, teleplayIndex: 0, startAt: 0);

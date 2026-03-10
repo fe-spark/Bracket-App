@@ -25,7 +25,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   // bool _ischanging = false;
   BetterPlayerController? _betterPlayerController;
   PlayVideoIdsStore? _playVideoIdsStore;
-  // final _throttler = Throttler(milliseconds: 1000);
+  HistoryStore? _historyStore;
+  final _throttler = Throttler(milliseconds: 5000);
 
   @override
   void initState() {
@@ -99,6 +100,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
     _betterPlayerController?.addEventsListener(_betterPlayerControllerListener);
     _playVideoIdsStore?.addListener(_changeDataSource);
+    _historyStore = context.read<HistoryStore>();
 
     super.initState();
   }
@@ -134,10 +136,16 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   }
 
   void _betterPlayerControllerListener(BetterPlayerEvent e) async {
+    if (e.betterPlayerEventType == BetterPlayerEventType.progress) {
+      _throttler.run(() => _setHistory());
+    } else if (e.betterPlayerEventType == BetterPlayerEventType.pause ||
+        e.betterPlayerEventType == BetterPlayerEventType.finished) {
+      _setHistory();
+    }
+
     var isPlaying = _betterPlayerController?.isPlaying() == true;
 
     if (isPlaying) {
-      _setHistroy();
       bool isEnabled = await WakelockPlus.enabled;
       if (!isEnabled) WakelockPlus.enable();
     } else {
@@ -171,17 +179,16 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     );
   }
 
-  void _setHistroy() {
-    _playVideoIdsStore = context.read<PlayVideoIdsStore>();
+  void _setHistory() {
     var videoPlayerController = _betterPlayerController?.videoPlayerController;
     var detail = widget.detail;
     var list = detail?.list;
     var teleplayIndex = _playVideoIdsStore?.teleplayIndex ?? 0;
     var originIndex = _playVideoIdsStore?.originIndex ?? 0;
 
-    var position = videoPlayerController?.value.position.inSeconds;
+    var position = videoPlayerController?.value.position.inSeconds ?? 0;
 
-    context.read<HistoryStore>().addHistory({
+    _historyStore?.addHistory({
       'id': detail?.id,
       "name": detail?.name,
       "timeStamp": DateTime.now().microsecondsSinceEpoch,
@@ -195,17 +202,18 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     _playVideoIdsStore = context.read<PlayVideoIdsStore>();
+    _historyStore = context.read<HistoryStore>();
     super.didChangeDependencies();
-    // context.dependOnInheritedWidgetOfExactType();
   }
 
   @override
   void dispose() {
+    _setHistory();
     _betterPlayerController
         ?.removeEventsListener(_betterPlayerControllerListener);
     _playVideoIdsStore?.removeListener(_changeDataSource);
     _betterPlayerController?.dispose();
-    // _throttler.cancel();
+    _throttler.cancel();
     WakelockPlus.disable();
     super.dispose();
   }
