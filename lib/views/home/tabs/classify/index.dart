@@ -184,8 +184,13 @@ class _ClassifyTabState extends State<ClassifyTab>
     );
   }
 
-  Widget _listContent(_) {
+  Widget _listContent(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final categories = _data?.category?.children
+            ?.where((e) => e.children != null && e.children!.isNotEmpty)
+            .toList() ??
+        [];
+
     return SafeArea(
       top: false,
       bottom: true,
@@ -194,7 +199,7 @@ class _ClassifyTabState extends State<ClassifyTab>
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           children: [
-            ...?_data?.category?.children!.asMap().entries.map(
+            ...categories.asMap().entries.map(
               (entry) {
                 int index = entry.key;
                 var e = entry.value;
@@ -287,7 +292,7 @@ class _ClassifyTabState extends State<ClassifyTab>
                       ).toList(),
                     ),
                     // 最后一个不要
-                    if (index != _data!.category!.children!.length - 1)
+                    if (index != categories.length - 1)
                       const SizedBox(height: 32), // Space between sections
                   ],
                 );

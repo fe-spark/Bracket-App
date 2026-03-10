@@ -23,11 +23,51 @@ class _SeriesState extends State<Series> {
   bool _isOpen = false;
   int _selectedGroupIndex = 0;
   int? _lastTeleplayIndex;
-  int? _viewOriginIndex; // Tracks which source is currently being VIEWED
+  int? _viewOriginIndex;
+  
+  final ScrollController _scrollController = ScrollController();
+  final ScrollController _groupScrollController = ScrollController();
+  final GlobalKey _activeEpisodeKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToActiveItem(immediate: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _groupScrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToActiveItem({bool immediate = false}) {
+    if (!mounted) return;
+
+    // 1. Scroll main view to the active episode
+    if (_activeEpisodeKey.currentContext != null) {
+      Scrollable.ensureVisible(
+        _activeEpisodeKey.currentContext!,
+        duration: immediate ? Duration.zero : const Duration(milliseconds: 300),
+        alignment: 0.5,
+      );
+    }
+
+    // 2. Scroll group bar to active group
+    if (_groupScrollController.hasClients) {
+      // Approximate calculation: each group item is around 80px wide
+      double targetOffset = (_selectedGroupIndex * 80.0) - 100.0;
+      targetOffset = targetOffset.clamp(0, _groupScrollController.position.maxScrollExtent);
+      
+      _groupScrollController.animateTo(
+        targetOffset,
+        duration: immediate ? Duration.zero : const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -51,6 +91,8 @@ class _SeriesState extends State<Series> {
       _lastTeleplayIndex = teleplayIndex;
       if (teleplayIndex != null && needsGrouping) {
         _selectedGroupIndex = teleplayIndex ~/ groupSize;
+        // Trigger scroll when index changes
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveItem());
       }
     }
 
@@ -70,6 +112,7 @@ class _SeriesState extends State<Series> {
         context: context,
         removeTop: true,
         child: CustomScrollView(
+          controller: _scrollController,
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverPadding(
@@ -172,6 +215,7 @@ class _SeriesState extends State<Series> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: SingleChildScrollView(
+                        controller: _groupScrollController,
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -265,7 +309,6 @@ class _SeriesState extends State<Series> {
                                       final colorScheme =
                                           Theme.of(context).colorScheme;
 
-                                      // Get actual absolute index for selection check
                                       final absoluteIndex = groupStart + i;
                                       final isSelected =
                                           _viewOriginIndex == activeOriginIndex &&
@@ -292,6 +335,7 @@ class _SeriesState extends State<Series> {
                                       }
 
                                       return SizedBox(
+                                        key: isSelected ? _activeEpisodeKey : null,
                                         width: itemWidth,
                                         child: InkWell(
                                           onTap: () {
