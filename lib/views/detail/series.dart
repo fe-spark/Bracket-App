@@ -32,6 +32,7 @@ class _SeriesState extends State<Series> {
   final ScrollController _sourceScrollController = ScrollController();
   final GlobalKey _activeEpisodeKey = GlobalKey();
   final Map<int, GlobalKey> _sourceKeyMap = {};
+  final Map<int, GlobalKey> _groupKeyMap = {};
 
   @override
   void initState() {
@@ -65,36 +66,33 @@ class _SeriesState extends State<Series> {
 
     final duration = immediate ? Duration.zero : const Duration(milliseconds: 300);
 
-    // 1. Scroll Volume: Source Selection Bar
-    if (_viewOriginIndex != null && _sourceKeyMap[_viewOriginIndex!]?.currentContext != null) {
-        Scrollable.ensureVisible(
-          _sourceKeyMap[_viewOriginIndex!]!.currentContext!,
-          duration: duration,
-          alignment: 0.5,
-        );
+    // Helper to scroll a specific controller to a key without affecting other axes
+    void scrollIsolated(ScrollController controller, GlobalKey key) {
+      final context = key.currentContext;
+      if (context != null && controller.hasClients) {
+        final renderObject = context.findRenderObject();
+        if (renderObject != null) {
+          controller.position.ensureVisible(
+            renderObject,
+            duration: duration,
+            alignment: 0.5,
+          );
+        }
+      }
     }
 
-    // 2. Scroll Volume: Group Bar
-    if (_groupScrollController.hasClients) {
-      // Approximate calculation: each group item is around 80px wide
-      double targetOffset = (_selectedGroupIndex * 80.0) - 100.0;
-      targetOffset = targetOffset.clamp(0, _groupScrollController.position.maxScrollExtent);
-      
-      _groupScrollController.animateTo(
-        targetOffset,
-        duration: duration,
-        curve: Curves.easeInOut,
-      );
+    // 1. Source Bar: Isolated horizontal scroll
+    if (_viewOriginIndex != null && _sourceKeyMap[_viewOriginIndex!] != null) {
+      scrollIsolated(_sourceScrollController, _sourceKeyMap[_viewOriginIndex!]!);
     }
 
-    // 3. Scroll Volume: Main List (Episodes)
-    if (_activeEpisodeKey.currentContext != null) {
-      Scrollable.ensureVisible(
-        _activeEpisodeKey.currentContext!,
-        duration: duration,
-        alignment: 0.5,
-      );
+    // 2. Group Bar: Isolated horizontal scroll
+    if (_groupKeyMap[_selectedGroupIndex] != null) {
+      scrollIsolated(_groupScrollController, _groupKeyMap[_selectedGroupIndex]!);
     }
+
+    // 3. Main List: Isolated vertical scroll
+    scrollIsolated(_scrollController, _activeEpisodeKey);
   }
 
   @override
@@ -233,7 +231,7 @@ class _SeriesState extends State<Series> {
                       child: Wrap(
                         spacing: 8,
                         children: list.mapIndexed((i, e) {
-                          _sourceKeyMap[i] = GlobalKey();
+                          _sourceKeyMap[i] ??= GlobalKey();
                           return ChoiceChip(
                               key: _sourceKeyMap[i],
                               label: Text(e?.name ?? '未知源'),
@@ -276,7 +274,9 @@ class _SeriesState extends State<Series> {
                             int end = ((index + 1) * groupSize)
                                 .clamp(0, linkList.length);
                             bool isSelected = _selectedGroupIndex == index;
+                            _groupKeyMap[index] ??= GlobalKey();
                             return Padding(
+                              key: _groupKeyMap[index],
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 4, vertical: 4),
                               child: GestureDetector(
