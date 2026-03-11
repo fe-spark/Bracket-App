@@ -61,7 +61,13 @@ jobs:
         run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Build IPA (Unsigned)
-        run: flutter build ipa --no-codesign
+        run: |
+          flutter build ios --release --no-codesign
+          mkdir -p Payload
+          cp -r build/ios/iphoneos/Runner.app Payload
+          zip -r bracket-unsigned.ipa Payload
+          mkdir -p build/ios/ipa
+          mv bracket-unsigned.ipa build/ios/ipa/
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
