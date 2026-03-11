@@ -64,9 +64,13 @@ f build ios --release --no-codesign
 
 ## 📸 界面预览 | Preview
 
-| 推荐页 | 分类浏览 | 个人中心 | 筛选器 | 播放详情 |
-| :---: | :---: | :---: | :---: | :---: |
-| <img src="./preview/推荐.png" width="200"> | <img src="./preview/分类.png" width="200"> | <img src="./preview/我的.png" width="200"> | <img src="./preview/筛选.png" width="200"> | <img src="./preview/播放页.png" width="200"> |
+| 影视源配置 | 首页推荐 | 搜索页面 |
+| :---: | :---: | :---: |
+| <img src="./preview/源.png" width="220"> | <img src="./preview/推荐.png" width="220"> | <img src="./preview/搜索.png" width="220"> |
+
+| 分类浏览 | 筛选体验 | 播放详情 | 个人中心 |
+| :---: | :---: | :---: | :---: |
+| <img src="./preview/分类.png" width="200"> | <img src="./preview/筛选.png" width="200"> | <img src="./preview/播放.png" width="200"> | <img src="./preview/我的.png" width="200"> |
 
 ---
 
