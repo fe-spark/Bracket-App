@@ -10,8 +10,8 @@ class PlayItem {
   PlayItem({this.episode, this.link});
 
   factory PlayItem.fromJson(Map<String, dynamic> json) {
-    return _$PlayListFromJson(json);
+    return _$PlayItemFromJson(json);
   }
 
-  Map<String, dynamic> toJson() => _$PlayListToJson(this);
+  Map<String, dynamic> toJson() => _$PlayItemToJson(this);
 }

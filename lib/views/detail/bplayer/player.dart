@@ -1,4 +1,4 @@
-import 'package:better_player/better_player.dart';
+import 'package:better_player_plus/better_player_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '/model/film_play_info/detail.dart';
 
@@ -25,7 +25,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   // bool _ischanging = false;
   BetterPlayerController? _betterPlayerController;
   PlayVideoIdsStore? _playVideoIdsStore;
-  // final _throttler = Throttler(milliseconds: 1000);
+  HistoryStore? _historyStore;
+  final _throttler = Throttler(milliseconds: 5000);
 
   @override
   void initState() {
@@ -36,34 +37,37 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
       allowedScreenSleep: true,
       aspectRatio: widget.aspectRatio,
       fullScreenAspectRatio: widget.fullScreenAspectRatio,
-      autoDetectFullscreenDeviceOrientation: false,
+      autoDetectFullscreenDeviceOrientation: true,
       autoDetectFullscreenAspectRatio: false,
       deviceOrientationsOnFullScreen: [
-        DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
+        DeviceOrientation.landscapeLeft,
       ],
       deviceOrientationsAfterFullScreen: [
         DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
       ],
       startAt: Duration(seconds: _playVideoIdsStore?.startAt ?? 0),
       autoPlay: true,
       controlsConfiguration: BetterPlayerControlsConfiguration(
         playerTheme: BetterPlayerTheme.custom,
-        customControlsBuilder: (BetterPlayerController controller, visibility) {
+        customControlsBuilder: (BetterPlayerController controller,
+            Function(bool) visibility,
+            BetterPlayerControlsConfiguration configuration) {
           var list = widget.detail?.list;
           var originIndex = _playVideoIdsStore?.originIndex ?? 0;
-          var teleplayIndex = _playVideoIdsStore?.teleplayIndex ?? 0;
+          int? teleplayIndex = _playVideoIdsStore?.teleplayIndex;
           var linkList = list?[originIndex].linkList;
 
-          bool hasNext = teleplayIndex < linkList!.length - 1;
-          bool hasPrev = teleplayIndex > 0;
+          bool hasNext = teleplayIndex != null &&
+              linkList != null &&
+              teleplayIndex < linkList.length - 1;
+          bool hasPrev = teleplayIndex != null && teleplayIndex > 0;
 
           return BetterPlayerMaterialControls(
             title: Text(
-              '${widget.detail?.name ?? ''}-${linkList[teleplayIndex].episode ?? ''}',
+              teleplayIndex != null && linkList != null
+                  ? '${widget.detail?.name ?? ''}-${linkList[teleplayIndex].episode ?? ''}'
+                  : '${widget.detail?.name ?? ''}-未选择',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -96,6 +100,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
     _betterPlayerController?.addEventsListener(_betterPlayerControllerListener);
     _playVideoIdsStore?.addListener(_changeDataSource);
+    _historyStore = context.read<HistoryStore>();
 
     super.initState();
   }
@@ -105,6 +110,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     _playVideoIdsStore = context.read<PlayVideoIdsStore>();
     _originIndex = _playVideoIdsStore!.originIndex;
     _teleplayIndex = _playVideoIdsStore!.teleplayIndex;
+
+    if (_teleplayIndex == null) return null;
 
     String? url = list?[_originIndex!].linkList?[_teleplayIndex!].link;
 
@@ -122,17 +129,23 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
       _betterPlayerController?.setupDataSource(dataSource).then((value) {
         var playVideoIdsStore = context.read<PlayVideoIdsStore>();
-        _betterPlayerController
-            ?.seekTo(Duration(seconds: playVideoIdsStore.startAt));
+        _betterPlayerController?.seekTo(
+            Duration(seconds: playVideoIdsStore.startAt ?? 0));
       });
     }
   }
 
   void _betterPlayerControllerListener(BetterPlayerEvent e) async {
+    if (e.betterPlayerEventType == BetterPlayerEventType.progress) {
+      _throttler.run(() => _setHistory());
+    } else if (e.betterPlayerEventType == BetterPlayerEventType.pause ||
+        e.betterPlayerEventType == BetterPlayerEventType.finished) {
+      _setHistory();
+    }
+
     var isPlaying = _betterPlayerController?.isPlaying() == true;
 
     if (isPlaying) {
-      _setHistroy();
       bool isEnabled = await WakelockPlus.enabled;
       if (!isEnabled) WakelockPlus.enable();
     } else {
@@ -166,17 +179,16 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     );
   }
 
-  void _setHistroy() {
-    _playVideoIdsStore = context.read<PlayVideoIdsStore>();
+  void _setHistory() {
     var videoPlayerController = _betterPlayerController?.videoPlayerController;
     var detail = widget.detail;
     var list = detail?.list;
     var teleplayIndex = _playVideoIdsStore?.teleplayIndex ?? 0;
     var originIndex = _playVideoIdsStore?.originIndex ?? 0;
 
-    var position = videoPlayerController?.value.position.inSeconds;
+    var position = videoPlayerController?.value.position.inSeconds ?? 0;
 
-    context.read<HistoryStore>().addHistory({
+    _historyStore?.addHistory({
       'id': detail?.id,
       "name": detail?.name,
       "timeStamp": DateTime.now().microsecondsSinceEpoch,
@@ -190,17 +202,18 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     _playVideoIdsStore = context.read<PlayVideoIdsStore>();
+    _historyStore = context.read<HistoryStore>();
     super.didChangeDependencies();
-    // context.dependOnInheritedWidgetOfExactType();
   }
 
   @override
   void dispose() {
+    _setHistory();
     _betterPlayerController
         ?.removeEventsListener(_betterPlayerControllerListener);
     _playVideoIdsStore?.removeListener(_changeDataSource);
     _betterPlayerController?.dispose();
-    // _throttler.cancel();
+    _throttler.cancel();
     WakelockPlus.disable();
     super.dispose();
   }

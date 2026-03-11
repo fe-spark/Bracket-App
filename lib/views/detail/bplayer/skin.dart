@@ -1,22 +1,22 @@
 // ignore: implementation_imports
-import 'package:better_player/src/configuration/better_player_controls_configuration.dart';
+import 'package:better_player_plus/src/configuration/better_player_controls_configuration.dart';
 // ignore: implementation_imports
-import 'package:better_player/src/controls/better_player_clickable_widget.dart';
+import 'package:better_player_plus/src/controls/better_player_clickable_widget.dart';
 // ignore: implementation_imports
-import 'package:better_player/src/controls/better_player_controls_state.dart';
+import 'package:better_player_plus/src/controls/better_player_controls_state.dart';
 // ignore: implementation_imports
-import 'package:better_player/src/controls/better_player_material_progress_bar.dart';
+import 'package:better_player_plus/src/controls/better_player_material_progress_bar.dart';
 // ignore: implementation_imports
-import 'package:better_player/src/controls/better_player_multiple_gesture_detector.dart';
+import 'package:better_player_plus/src/controls/better_player_multiple_gesture_detector.dart';
 // ignore: implementation_imports
-import 'package:better_player/src/controls/better_player_progress_colors.dart';
+import 'package:better_player_plus/src/controls/better_player_progress_colors.dart';
 // ignore: implementation_imports
-import 'package:better_player/src/core/better_player_controller.dart';
+import 'package:better_player_plus/src/core/better_player_controller.dart';
 // ignore: implementation_imports
-import 'package:better_player/src/core/better_player_utils.dart';
+import 'package:better_player_plus/src/core/better_player_utils.dart';
 // ignore: implementation_imports
-import 'package:better_player/src/video_player/video_player.dart';
-import 'package:brightness_volume/brightness_volume.dart';
+import 'package:better_player_plus/src/video_player/video_player.dart';
+import '/utils/bv_utils.dart';
 import '/plugins.dart';
 
 import 'percentage.dart';
@@ -166,7 +166,6 @@ class _BetterPlayerMaterialControlsState
       key: const Key("BetterPlayerSkin"),
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        print(controlsNotVisible);
         if (BetterPlayerMultipleGestureDetector.of(context) != null) {
           BetterPlayerMultipleGestureDetector.of(context)!.onTap?.call();
         }
@@ -199,7 +198,6 @@ class _BetterPlayerMaterialControlsState
       onLongPressEnd: (detail) {
         betterPlayerController?.setSpeed(_tempPlaybackSpeed);
         _percentageWidget.offstageCallback(true);
-        print('onLongPressEnd');
       },
       onVerticalDragStart: (DragStartDetails details) async {
         double clientW = context.size!.width;
@@ -373,10 +371,13 @@ class _BetterPlayerMaterialControlsState
     var videoAspectRatio =
         _betterPlayerController?.videoPlayerController?.value.aspectRatio ??
             1.0;
+    final isFullScreen = _betterPlayerController?.isFullScreen == true;
 
     return SafeArea(
       top: videoAspectRatio < fullScreenAspectRatio,
       bottom: false,
+      left: isFullScreen,
+      right: isFullScreen,
       child: (_controlsConfiguration.enableOverflowMenu)
           ? AnimatedOpacity(
               opacity:
@@ -420,7 +421,7 @@ class _BetterPlayerMaterialControlsState
                                   widget.onNext,
                                 )
                               : const SizedBox(),
-                          SizedBox(
+                          const SizedBox(
                             width: 12,
                           ),
                           _buildMoreButton(),
@@ -452,20 +453,18 @@ class _BetterPlayerMaterialControlsState
     if (!betterPlayerController!.controlsEnabled) {
       return const SizedBox();
     }
-    var fullScreenAspectRatio = _betterPlayerController
-            ?.betterPlayerConfiguration.fullScreenAspectRatio ??
-        1.0;
-    var videoAspectRatio =
-        _betterPlayerController?.videoPlayerController?.value.aspectRatio ??
-            1.0;
+    final isFullScreen = _betterPlayerController?.isFullScreen == true;
+
     return SafeArea(
       top: false,
-      bottom: videoAspectRatio < fullScreenAspectRatio,
+      bottom: isFullScreen,
+      left: isFullScreen,
+      right: isFullScreen,
       child: AnimatedOpacity(
         opacity: controlsNotVisible ? 0.0 : 1.0,
         duration: _controlsConfiguration.controlsHideTime,
         onEnd: _onPlayerHide,
-        child: Container(
+        child: SizedBox(
           height: _controlsConfiguration.controlBarHeight + 16,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -482,7 +481,7 @@ class _BetterPlayerMaterialControlsState
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 6),
+                  padding: const EdgeInsets.only(bottom: 6),
                   child: Row(
                     children: [
                       if (_controlsConfiguration.enablePlayPause)

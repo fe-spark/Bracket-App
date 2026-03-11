@@ -1,3 +1,5 @@
+// import "/views/detail/related.dart";
+
 import '/plugins.dart';
 import "package:bracket/model/film_play_info/detail.dart";
 import "/model/film_play_info/data.dart" show Data;
@@ -34,7 +36,8 @@ class _DetailPageState extends State<DetailPage> {
   final double _playerAspectRatio = 16 / 9;
   final List<MyTab> _tabs = [
     MyTab(icon: const Icon(Icons.abc_outlined), label: '详情', key: UniqueKey()),
-    MyTab(icon: const Icon(Icons.abc_outlined), label: '简介', key: UniqueKey()),
+    MyTab(
+        icon: const Icon(Icons.abc_outlined), label: '相关推荐', key: UniqueKey()),
   ];
 
   Data? _data;
@@ -55,15 +58,14 @@ class _DetailPageState extends State<DetailPage> {
 
       var item = getHistory(id);
 
-      var originId = item?['originId'];
-      var originIndex =
-          _data?.detail?.list?.indexWhere((element) => originId == element.id);
-
-      if (originIndex != null && originIndex >= 0) {
+      if (item != null) {
+        var originId = item['originId'];
+        var originIndex = _data?.detail?.list?.indexWhere((element) => originId == element.id);
+        
         playIdsInfo.setVideoInfo(
-          originIndex,
-          teleplayIndex: item?['teleplayIndex'],
-          startAt: item?['startAt'],
+          (originIndex != null && originIndex >= 0) ? originIndex : 0,
+          teleplayIndex: item['teleplayIndex'] ?? 0,
+          startAt: item['startAt'] ?? 0,
         );
       } else {
         playIdsInfo.setVideoInfo(0, teleplayIndex: 0, startAt: 0);
@@ -100,19 +102,23 @@ class _DetailPageState extends State<DetailPage> {
       //   onPressed: () {},
       //   child: const Icon(Icons.expand),
       // ),
-      body: SafeArea(
-        child: OrientationBuilder(
-          builder: (context, orientation) {
-            return Flex(
-              direction: orientation == Orientation.portrait
-                  ? Axis.vertical
-                  : Axis.horizontal,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: orientation == Orientation.portrait ? 0 : 1,
-                  child: Container(
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return Flex(
+            direction: orientation == Orientation.portrait
+                ? Axis.vertical
+                : Axis.horizontal,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: orientation == Orientation.portrait ? 0 : 1,
+                child: Container(
+                  decoration: const BoxDecoration(
                     color: Colors.black,
+                  ),
+                  child: SafeArea(
+                    bottom: orientation != Orientation.portrait,
+                    right: orientation == Orientation.portrait,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         Size size = MediaQuery.of(context).size;
@@ -150,18 +156,28 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                   ),
                 ),
-                if (orientation == Orientation.portrait)
-                  Container()
-                else
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Container(
-                      width: 0.5,
-                      color: Theme.of(context).dividerColor,
-                    ),
+              ),
+              if (orientation == Orientation.portrait)
+                Container(
+                  height: 8,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withValues(alpha: 0.4),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Container(
+                    width: 0.5,
+                    color: Theme.of(context).dividerColor,
                   ),
-                Expanded(
-                  flex: 1,
+                ),
+              Expanded(
+                flex: 1,
+                child: SafeArea(
+                  top: false,
+                  left: orientation == Orientation.portrait,
                   child: DefaultTabController(
                     length: _tabs.length,
                     child: Column(
@@ -200,10 +216,10 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                   ),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

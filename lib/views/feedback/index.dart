@@ -26,27 +26,41 @@ class _FeedbackPageState extends State<FeedbackPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('意见反馈')),
       body: SafeArea(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          // color: Colors.red,
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: TextField(
-                  controller: _inputController,
-                  maxLines: 4,
-                  keyboardType: TextInputType.multiline,
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextField(
+                    controller: _inputController,
+                    maxLines: 8,
+                    maxLength: 200,
+                    keyboardType: TextInputType.multiline,
+                    decoration: const InputDecoration(
+                      hintText: '请输入您的宝贵意见...',
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      fillColor: Colors.transparent,
+                      filled: false,
+                      counterText: '',
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(
-                height: 60,
-              ),
+              const SizedBox(height: 32),
               SizedBox(
-                width: 300,
-                height: 60,
+                width: double.infinity,
+                height: 56,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 4,
+                    shadowColor:
+                        Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                  ),
                   onPressed: (text != '')
                       ? () {
                           setState(() {
@@ -55,6 +69,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           _inputController.clear();
                           const snackBar = SnackBar(
                             content: Text("提交成功"),
+                            behavior: SnackBarBehavior.floating,
                           );
                           ScaffoldMessenger.of(context).removeCurrentSnackBar(
                             reason: SnackBarClosedReason.remove,
@@ -62,9 +77,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         }
                       : null,
-                  child: const Text('提交'),
+                  child: const Text(
+                    '提交反馈',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),

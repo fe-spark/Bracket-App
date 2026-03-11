@@ -11,33 +11,29 @@ class ThemePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('系统主题'),
       ),
-      body: ListView(
-        children: <Widget>[
-          RadioListTile<String>(
-            title: const Text('跟随系统'),
-            value: ITheme.auto.value,
-            groupValue: themeStore.data,
-            onChanged: (String? value) {
-              themeStore.setTheme(ITheme.auto.value);
-            },
-          ),
-          RadioListTile<String>(
-            title: const Text('暗黑模式'),
-            value: ITheme.dark.value,
-            groupValue: themeStore.data,
-            onChanged: (String? value) {
-              themeStore.setTheme(ITheme.dark.value);
-            },
-          ),
-          RadioListTile<String>(
-            title: const Text('明亮模式'),
-            value: ITheme.light.value,
-            groupValue: themeStore.data,
-            onChanged: (String? value) {
-              themeStore.setTheme(ITheme.light.value);
-            },
-          )
-        ],
+      body: RadioGroup<String>(
+        groupValue: themeStore.data,
+        onChanged: (String? value) {
+          if (value != null) {
+            themeStore.setTheme(value);
+          }
+        },
+        child: ListView(
+          children: <Widget>[
+            RadioListTile<String>(
+              title: const Text('跟随系统'),
+              value: ITheme.auto.value,
+            ),
+            RadioListTile<String>(
+              title: const Text('暗黑模式'),
+              value: ITheme.dark.value,
+            ),
+            RadioListTile<String>(
+              title: const Text('明亮模式'),
+              value: ITheme.light.value,
+            )
+          ],
+        ),
       ),
     );
   }

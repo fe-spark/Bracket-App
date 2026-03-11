@@ -1,18 +1,18 @@
 PODS:
-  - better_player (0.0.1):
+  - better_player_plus (1.1.2):
     - Cache (~> 6.0.0)
     - Flutter
     - GCDWebServer
     - HLSCachingReverseProxyServer
     - PINCache
-  - brightness_volume (0.0.1):
-    - Flutter
   - Cache (6.0.0)
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
   - Flutter (1.0.0)
-  - flutter_native_splash (0.0.1):
+  - flutter_native_splash (2.4.3):
+    - Flutter
+  - flutter_volume_controller (0.0.1):
     - Flutter
   - GCDWebServer (3.5.4):
     - GCDWebServer/Core (= 3.5.4)
@@ -35,8 +35,10 @@ PODS:
   - PINCache/Core (3.0.4):
     - PINOperation (~> 1.2.3)
   - PINOperation (1.2.3)
-  - ReachabilitySwift (5.0.0)
+  - ReachabilitySwift (5.2.4)
   - rive_common (0.0.1):
+    - Flutter
+  - screen_brightness_ios (0.1.0):
     - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
@@ -45,15 +47,16 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - better_player (from `.symlinks/plugins/better_player/ios`)
-  - brightness_volume (from `.symlinks/plugins/brightness_volume/ios`)
+  - better_player_plus (from `.symlinks/plugins/better_player_plus/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - Flutter (from `Flutter`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
+  - flutter_volume_controller (from `.symlinks/plugins/flutter_volume_controller/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - rive_common (from `.symlinks/plugins/rive_common/ios`)
+  - screen_brightness_ios (from `.symlinks/plugins/screen_brightness_ios/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
 
@@ -67,16 +70,16 @@ SPEC REPOS:
     - ReachabilitySwift
 
 EXTERNAL SOURCES:
-  better_player:
-    :path: ".symlinks/plugins/better_player/ios"
-  brightness_volume:
-    :path: ".symlinks/plugins/brightness_volume/ios"
+  better_player_plus:
+    :path: ".symlinks/plugins/better_player_plus/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   Flutter:
     :path: Flutter
   flutter_native_splash:
     :path: ".symlinks/plugins/flutter_native_splash/ios"
+  flutter_volume_controller:
+    :path: ".symlinks/plugins/flutter_volume_controller/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
@@ -85,30 +88,33 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   rive_common:
     :path: ".symlinks/plugins/rive_common/ios"
+  screen_brightness_ios:
+    :path: ".symlinks/plugins/screen_brightness_ios/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   wakelock_plus:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
-  better_player: 2406bfe8175203c7a46fa15f9d778d73b12e1646
-  brightness_volume: e63139ebe38e642937d5cd286b58c9a9890f1725
+  better_player_plus: fca2fd5219b0e5ba2aba7cdd26b1cbb1ba739acb
   Cache: 4ca7e00363fca5455f26534e5607634c820ffc2d
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_native_splash: df59bb2e1421aa0282cb2e95618af4dcb0c56c29
+  flutter_volume_controller: e4d5832f08008180f76e30faf671ffd5a425e529
   GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   HLSCachingReverseProxyServer: 59935e1e0244ad7f3375d75b5ef46e8eb26ab181
-  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PINCache: d9a87a0ff397acffe9e2f0db972ac14680441158
   PINOperation: fb563bcc9c32c26d6c78aaff967d405aa2ee74a7
-  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  rive_common: cbbac3192af00d7341f19dae2f26298e9e37d99e
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
+  rive_common: 4743dbfd2911c99066547a3c6454681e0fa907df
+  screen_brightness_ios: 6a6f7794b67f07c4f1e24f6374b2d8ad367ffb39
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
+  wakelock_plus: 76957ab028e12bfa4e66813c99e46637f367fc7e
 
-PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
+PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.16.2

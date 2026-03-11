@@ -60,31 +60,48 @@ class SearchPage extends SearchDelegate<String> {
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Wrap(
-              spacing: 8,
-              // runSpacing: 6,
-              children: suggestionList
-                  .map(
-                    (e) => OutlinedButton(
-                      onPressed: () {
-                        query = e;
-                        showResults(context);
-                      },
-                      child: Text(e),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '历史搜索',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
-                  )
-                  .toList(),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      onPressed: () {
+                        searchStore.clearStore();
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: suggestionList
+                      .map(
+                        (e) => InputChip(
+                          label: Text(e),
+                          onPressed: () {
+                            query = e;
+                            showResults(context);
+                          },
+                          onDeleted: () {
+                            searchStore.removeSearchRecord(e);
+                          },
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ),
           ),
-          Center(
-            child: TextButton(
-              onPressed: () {
-                searchStore.clearStore();
-                // global.setSearchRecord(str)
-              },
-              child: const Text('清除历史输入'),
-            ),
-          )
         ],
       );
     }
@@ -120,7 +137,10 @@ class _SearchListState extends State<SearchList> {
     });
     var res = await Api.searchFilm(
       context: context,
-      queryParameters: {'keyword': widget.query, 'current': _current},
+      queryParameters: {
+        'keyword': widget.query,
+        'current': _current,
+      },
     );
 
     if (widget.query.isNotEmpty) {

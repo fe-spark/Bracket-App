@@ -1,6 +1,6 @@
 {
-  "flutterSdkVersion": "3.19.6",
+  "flutterSdkVersion": "stable",
   "flavors": {
-    "prod": "3.16.9"
+    "development": "stable"
   }
 }

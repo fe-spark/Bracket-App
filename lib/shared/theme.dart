@@ -1,214 +1,191 @@
 import '/plugins.dart';
-import 'package:material_color_utilities/material_color_utilities.dart';
 
 class ThemeProvider {
-  BuildContext context;
-  Color sourceColor;
+  final BuildContext context;
+  final Color sourceColor;
 
-  ThemeProvider(this.context, this.sourceColor);
-
-  final pageTransitionsTheme = const PageTransitionsTheme(
-    builders: <TargetPlatform, PageTransitionsBuilder>{
-      TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-    },
-  );
-
-  Color blend(Color targetColor) {
-    return Color(
-      Blend.harmonize(
-        targetColor.value,
-        sourceColor.value,
-      ),
-    );
-  }
-
-  Color source(Color? target) {
-    Color source = sourceColor;
-    if (target != null) {
-      source = blend(target);
-    }
-    return source;
-  }
+  const ThemeProvider(this.context, this.sourceColor);
 
   ColorScheme colors(Brightness brightness) {
-    return ColorScheme.fromSeed(
+    var scheme = ColorScheme.fromSeed(
       seedColor: sourceColor,
       brightness: brightness,
     );
-  }
-
-  // ShapeBorder get shapeMedium =>
-
-  TextTheme textTheme(ColorScheme colors) {
-    return const TextTheme().copyWith();
-  }
-
-  CardTheme cardTheme(ColorScheme colors) {
-    return CardTheme.of(context).copyWith(
-      elevation: 10,
-      color: colors.surface,
-      shadowColor: Theme.of(context).primaryColor.withOpacity(0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: Theme.of(context).primaryColor.withOpacity(0.5),
-          // width: 0,
-          // strokeAlign: BorderSide.strokeAlignInside,
-        ),
-      ),
-      clipBehavior: Clip.none,
-    );
-  }
-
-  ListTileThemeData listTileTheme(ColorScheme colors) {
-    return ListTileTheme.of(context).copyWith(
-        // textColor: colors.inverseSurface,
-        // shape: RoundedRectangleBorder(
-        //   borderRadius: BorderRadius.circular(8),
-        //   side: BorderSide(
-        //     color: Theme.of(context).primaryColor.withOpacity(0.5),
-        //     width: 4,
-        //     // strokeAlign: BorderSide.strokeAlignOutside,
-        //   ),
-        // ),
-        // selectedColor: colors.surface,
-        );
-  }
-
-  AppBarTheme appBarTheme(ColorScheme colors) {
-    return const AppBarTheme(
-      elevation: 0,
-      // backgroundColor: colors.inversePrimary,
-      // foregroundColor: colors.surfaceTint,
-    );
-  }
-
-  TabBarTheme tabBarTheme(ColorScheme colors) {
-    return TabBarTheme(
-      labelColor: colors.secondary,
-      unselectedLabelColor: colors.onSurfaceVariant,
-      indicator: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: colors.secondary,
-            width: 2,
-          ),
-        ),
-      ),
-    );
-  }
-
-  BottomAppBarTheme bottomAppBarTheme(ColorScheme colors) {
-    return BottomAppBarTheme(
-      color: colors.surface,
-      elevation: 0,
-    );
-  }
-
-  BottomNavigationBarThemeData bottomNavigationBarTheme(ColorScheme colors) {
-    return BottomNavigationBarThemeData(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: colors.onSecondary,
-      selectedItemColor: colors.onSurface,
-      unselectedItemColor: colors.onSurfaceVariant,
-      elevation: 0,
-      landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
-    );
-  }
-
-  NavigationRailThemeData navigationRailTheme(ColorScheme colors) {
-    return const NavigationRailThemeData();
-  }
-
-  DrawerThemeData drawerTheme(ColorScheme colors) {
-    return DrawerThemeData(
-      backgroundColor: colors.surface,
+    // Force the primary color to be the exact source color
+    // This prevents Dark Mode from using a "whitish" pastel version
+    return scheme.copyWith(
+      primary: sourceColor,
+      onPrimary: Colors.white,
     );
   }
 
   ThemeData light() {
-    final selfColor = colors(Brightness.light);
-    return ThemeData.light().copyWith(
-        scaffoldBackgroundColor: Colors.grey[100],
-        colorScheme: selfColor,
-        primaryColor: sourceColor,
-        primaryColorDark: selfColor.background,
-        pageTransitionsTheme: pageTransitionsTheme,
-        appBarTheme: AppBarTheme.of(context).copyWith(
-          elevation: 10,
-          backgroundColor: Colors.grey[200],
+    final colorScheme = colors(Brightness.light);
+    // Tonal Theme: Uses tinted surfaces derived from Brand Color
+    return _baseTheme(colorScheme).copyWith(
+      scaffoldBackgroundColor:
+          const Color(0xFFF7F6FC), // Pale Lavender Background
+      appBarTheme: AppBarTheme(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor:
+            colorScheme.surface, // Tinted AppBar matches background
+        foregroundColor: colorScheme.onSurface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        surfaceTintColor: Colors.transparent,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 4, // 增加阴影以"高亮"
+        shadowColor: colorScheme.shadow.withValues(alpha: 0.05),
+        color: Colors.white, // 纯白卡片
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24), // 更大圆角
+          side: BorderSide.none,
         ),
-        cardTheme: cardTheme(selfColor),
-        listTileTheme: listTileTheme(selfColor),
-        bottomAppBarTheme: bottomAppBarTheme(selfColor),
-        bottomNavigationBarTheme: bottomNavigationBarTheme(selfColor),
-        navigationRailTheme: navigationRailTheme(selfColor),
-        tabBarTheme: tabBarTheme(selfColor),
-        drawerTheme: drawerTheme(selfColor),
-        dividerTheme: DividerTheme.of(context).copyWith(
-          space: 8,
-          color: Theme.of(context).primaryColor.withOpacity(0.5),
-        ),
-        chipTheme: ChipTheme.of(context).copyWith(
-          shape: const RoundedRectangleBorder(
-            side: BorderSide(
-              color: Colors.transparent,
-            ),
-            borderRadius: BorderRadius.all(
-              Radius.circular(8),
-            ),
-          ),
-          elevation: 2,
-        ),
-        // scaffoldBackgroundColor: selfColor.background,
-        snackBarTheme: const SnackBarThemeData().copyWith(
-          behavior: SnackBarBehavior.floating,
-        ),
-        // ElevatedButton
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: sourceColor,
-            foregroundColor: Colors.white,
-            textStyle: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ));
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        // Tinted Input
+        // border/enabledBorder/focusedBorder properties handled in _baseTheme
+      ),
+    );
   }
 
   ThemeData dark() {
-    final selfColor = colors(Brightness.dark);
-    return ThemeData.dark().copyWith(
-      colorScheme: selfColor,
-      primaryColor: sourceColor,
-      pageTransitionsTheme: pageTransitionsTheme,
-      appBarTheme: AppBarTheme.of(context).copyWith(
-        elevation: 10,
+    final colorScheme = colors(Brightness.dark);
+    return _baseTheme(colorScheme).copyWith(
+      scaffoldBackgroundColor: Colors.black,
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        centerTitle: true,
         backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
       ),
-      cardTheme: cardTheme(selfColor),
-      dividerTheme: DividerTheme.of(context).copyWith(
-        color: Theme.of(context).primaryColor.withOpacity(0.5),
+      // Dark Mode Cards need to be dark gray
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: const Color(0xFF1C1C1E), // Apple Dark Gray
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide.none,
+        ),
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
       ),
-      chipTheme: ChipTheme.of(context).copyWith(
-        shape: const RoundedRectangleBorder(
-          side: BorderSide(
-            color: Colors.transparent,
+    );
+  }
+
+  ThemeData _baseTheme(ColorScheme colorScheme) {
+    return ThemeData(
+      useMaterial3: true,
+      splashFactory: NoSplash.splashFactory,
+      colorScheme: colorScheme,
+      brightness: colorScheme.brightness,
+      primaryColor: colorScheme.primary,
+      // Default Card Theme (overridden in light/dark for specific colors)
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: colorScheme.surfaceContainerLow,
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide.none,
+        ),
+      ),
+      listTileTheme: ListTileThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        iconColor: colorScheme.primary,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          borderRadius: BorderRadius.all(
-            Radius.circular(8),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: colorScheme.primary,
+          side: BorderSide(color: colorScheme.primary, width: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: colorScheme.primary,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
-        elevation: 2,
       ),
-      listTileTheme: listTileTheme(selfColor),
-      bottomAppBarTheme: bottomAppBarTheme(selfColor),
-      bottomNavigationBarTheme: bottomNavigationBarTheme(selfColor),
-      navigationRailTheme: navigationRailTheme(selfColor),
-      tabBarTheme: tabBarTheme(selfColor),
-      drawerTheme: drawerTheme(selfColor),
-      // scaffoldBackgroundColor: selfColor.background,
-      snackBarTheme: const SnackBarThemeData().copyWith(
-        behavior: SnackBarBehavior.floating,
+      tabBarTheme: TabBarThemeData(
+        dividerColor: Colors.transparent,
+        indicatorSize: TabBarIndicatorSize.label,
+        labelColor: colorScheme.primary,
+        unselectedLabelColor: colorScheme.onSurfaceVariant,
+      ),
+      dividerTheme: DividerThemeData(
+        space: 1,
+        thickness: 1,
+        color:
+            colorScheme.outlineVariant.withValues(alpha: 0.1), // Faint divider
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
+      chipTheme: ChipThemeData(
+          backgroundColor:
+              colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          labelStyle: TextStyle(color: colorScheme.onSurface),
+          side: BorderSide.none,
+          shape: const StadiumBorder()),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: <TargetPlatform, PageTransitionsBuilder>{
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
       ),
     );
   }
