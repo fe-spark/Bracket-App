@@ -35,11 +35,14 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
+      - name: Rename APK
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/bracket-release.apk
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bracket-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: bracket-apk
+          path: build/app/outputs/flutter-apk/bracket-release.apk
 
   build_ios:
     name: Build iOS IPA
@@ -72,8 +75,8 @@ jobs:
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bracket-release-ipa
-          path: build/ios/ipa/*.ipa
+          name: bracket-ipa
+          path: build/ios/ipa/bracket-unsigned.ipa
 
   release:
     name: Create GitHub Release
@@ -88,7 +91,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            bracket-release-apk/app-release.apk
-            bracket-release-ipa/*.ipa
+            bracket-apk/*.apk
+            bracket-ipa/*.ipa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
