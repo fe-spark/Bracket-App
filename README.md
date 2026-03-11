@@ -1,73 +1,88 @@
-## Bracket
+# 🎬 Bracket
 
-一款基于 Flutter 的免费观影 App
+**一款基于 Flutter 构建的极致免费观影体验 App**
 
-> A video App based on Flutter
+> A professional video streaming application built with Flutter, focused on simplicity and performance.
 
-<img style="margin-right: 10px" src="https://img.shields.io/badge/dart-v3.3.4%20(stable)-blue"> <img style="margin-right: 10px"  src="https://img.shields.io/badge/flutter-v3.19.6-red"> <img 
-style="margin-right: 10px" src="https://img.shields.io/badge/fvm-v3.1.7-yellow">
+[![Dart](https://img.shields.io/badge/Dart-3.10.4-blue?logo=dart&logoColor=white)](https://dart.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.38.5-red?logo=flutter&logoColor=white)](https://flutter.dev)
+[![FVM](https://img.shields.io/badge/FVM-Latest-yellow?logo=google&logoColor=white)](https://fvm.app)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![GitHub Actions](https://github.com/fe-spark/Bracket-App/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/fe-spark/Bracket-App/actions)
 
-## Film data source
+---
 
-本项目通过[Bracket-Film](https://github.com/fe-spark/Bracket-Film)接入数据，如需搭建视频源，可自行搭建[Bracket-Film](https://github.com/fe-spark/Bracket-Film)
+## ✨ 项目特色 | Features
 
-[网页版观影地址](https://film.fe-spark.cn/)
+- 🚀 **极致流畅**：基于 Flutter 渲染引擎，提供原生级别的交互体验。
+- 📱 **跨端支持**：完美支持 Android 与 iOS (越狱/自签)。
+- 🎨 **简约设计**：现代化的 UI 设计，支持海报墙展示。
+- 📄 **数据灵活**：通过 [Bracket-Film](https://github.com/fe-spark/Bracket-Film) 接入，支持自定义视频源。
+- 🤖 **自动化构建**：全流程 GitHub Actions 自动化打包释放。
 
-## Getting Started
+---
 
-```
+## 🏗️ 快速开始 | Getting Started
+
+### 环境要求
+- Flutter SDK `3.38.5` (建议使用 [FVM](https://fvm.app) 管理)
+- Dart SDK `3.10.4`
+
+### 运行步骤
+```bash
+# 获取依赖
+f pub get
+
+# 生成代码 (JsonSerializable)
+f pub run build_runner build --delete-conflicting-outputs
+
+# 运行项目
 f run
 ```
 
-## Build
+---
 
-IOS(无企业签名，请自行签名)
+## 🛠️ 构建与编译 | Build
 
-```
-f build ipa
-```
-
-ADNDROID
-
-```
-f build apk
+### Android
+```bash
+f build apk --release
 ```
 
-本项目已配置 GitHub Actions 自动化打包，支持 APK 和 IPA 输出。
+### iOS (Unsigned)
+```bash
+f build ios --release --no-codesign
+```
 
-- **自动触发**：创建并推送以 `v` 开头的标签（如 `v1.4.1`）时自动构建
-- **手动触发**：在 GitHub 仓库的 Actions 页面点击 `Run workflow` 手动触发
-- **下载产物**：构建完成后，在 Actions 运行记录中下载 `bracket-release-apk` 或 `bracket-release-ipa`
-- **自动发布**：推送 `v*` 标签时，APK 和 IPA 会自动附加到 GitHub Release
+### 🤖 CI/CD 自动化打包
+项目已深度配置 GitHub Actions，您无需本地配置环境即可获取产物：
+- **触发方式**：向仓库推送 `v*` 格式的标签（例如 `v1.5.0`）。
+- **同步发布**：产物（APK & Unsigned IPA）将自动上传至 GitHub **Releases** 页面。
+- **手动触发**：在 GitHub Actions 面板手动点击 `Run workflow`。
 
-## Preview
+---
 
-<table>
-  <tr>
-      <td>
-         <img width="250px" src="./preview/推荐.png">
-      </td>
-      <td>
-         <img width="250px" src="./preview/分类.png">
-      </td>
-      <td>
-         <img width="250px" src="./preview/我的.png">
-      </td>
-      <td>
-         <img width="250px" src="./preview/筛选.png">
-      </td>
-      <td>
-         <img width="250px" src="./preview/播放页.png">
-      </td>
-   </tr>
-</table>
+## 📸 界面预览 | Preview
 
-## Matters needing attention
+| 推荐页 | 分类浏览 | 个人中心 | 筛选器 | 播放详情 |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="./preview/推荐.png" width="200"> | <img src="./preview/分类.png" width="200"> | <img src="./preview/我的.png" width="200"> | <img src="./preview/筛选.png" width="200"> | <img src="./preview/播放页.png" width="200"> |
 
-关于影视源问题
+---
 
-> 提供官方免费源`https://film.fe-spark.cn/api/`(末尾可不带`/`), 由于服务器带宽较低，经常访问失败，还请谅解，如需搭建视频源，可自行搭建[Bracket-Film](https://github.com/fe-spark/Bracket-Film)。
+## 📡 视频源说明 | Data Source
+本项目不存储任何视频数据，仅作为视频播放器。
+- **默认服务**：[网页版地址](http://74.48.78.105:3000/)
+- **API 接口**：`https://film.fe-spark.cn/api/` (由于带宽限制，高峰期可能访问缓慢)。
+- **自定义搭建**：如需稳定体验，建议参考 [Bracket-Film](https://github.com/fe-spark/Bracket-Film) 自行搭建后端。
 
-## Write at the end
+---
 
-> 免责声明：数据来源均来自于网络，暂不提供下载功能，本项目仅供学习交流，如有侵权，可通过邮箱联系我
+## ⚖️ 免责声明 | Disclaimer
+1. 本项目仅供 **学习交流** 使用，严禁用于任何商业用途。
+2. 数据来源均源于网络公开接口，开发者不承担任何资源版权责任。
+3. 若您认为本项目侵犯了您的合法权益，请通过邮箱及时联系，我们将尽快处理。
+
+---
+
+> Created with ❤️ by fe-spark

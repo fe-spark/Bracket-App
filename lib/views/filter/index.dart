@@ -391,25 +391,28 @@ Widget getMovieGridContent(BuildContext context, movie) => Expanded(
               spacing: 4,
               runSpacing: 4,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withAlpha(200),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(2),
-                    child: Text(
-                      movie?.year ?? '',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize:
-                            Theme.of(context).textTheme.bodySmall?.fontSize,
+                if (movie?.year != null &&
+                    movie!.year!.isNotEmpty &&
+                    movie.year != '0')
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withAlpha(200),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: Text(
+                        movie.year!,
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize:
+                              Theme.of(context).textTheme.bodySmall?.fontSize,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
                     ),
                   ),
-                ),
                 Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor.withAlpha(200),
