@@ -33,6 +33,15 @@ ADNDROID
 f build apk
 ```
 
+## CI/CD
+
+本项目已配置 GitHub Actions 自动化打包，推送代码后会自动构建 APK 和 IPA。
+
+- **自动触发**：推送到 `main` 分支或创建 `v*` 标签时自动构建
+- **手动触发**：在 GitHub 仓库的 Actions 页面点击 `Run workflow` 手动触发
+- **下载产物**：构建完成后，在 Actions 运行记录中下载 `bracket-release-apk` 或 `bracket-release-ipa`
+- **自动发布**：推送 `v*` 标签时，APK 和 IPA 会自动附加到 GitHub Release
+
 ## Preview
 
 <table>
