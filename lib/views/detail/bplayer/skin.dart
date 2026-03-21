@@ -37,6 +37,8 @@ const double _fullscreenTopChipFontSize = 13.0;
 const double _fullscreenTransportButtonSize = 52.0;
 const double _fullscreenTransportButtonIconSize = 24.0;
 const double _fullscreenTransportButtonSpacing = 24.0;
+const double _fullscreenSideActionButtonSize = 44.0;
+const double _fullscreenSideActionIconSize = 22.0;
 const Duration _overlayAnimationDuration = Duration(milliseconds: 180);
 const double _loadingOverlayMargin = 12.0;
 const double _feedbackOverlayOffsetY = -72.0;
@@ -110,6 +112,8 @@ class VideoPlayerMaterialControls extends StatefulWidget {
   final VideoPlayerController? controller;
   final bool isFullscreen;
   final VoidCallback onToggleFullscreen;
+  final bool orientationLocked;
+  final VoidCallback? onToggleOrientationLock;
   final ValueChanged<bool> onPlayRequestedChanged;
   final Widget title;
   final VoidCallback? onPrev;
@@ -127,6 +131,8 @@ class VideoPlayerMaterialControls extends StatefulWidget {
     required this.controller,
     required this.isFullscreen,
     required this.onToggleFullscreen,
+    this.orientationLocked = false,
+    this.onToggleOrientationLock,
     required this.onPlayRequestedChanged,
     required this.title,
     required this.onRetry,
@@ -1497,6 +1503,39 @@ class _VideoPlayerMaterialControlsState extends State<VideoPlayerMaterialControl
     );
   }
 
+  Widget _buildFullscreenSideActions() {
+    if (!_isFullscreen || widget.onToggleOrientationLock == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned.fill(
+      child: IgnorePointer(
+        ignoring: !_controlsVisible,
+        child: AnimatedOpacity(
+          opacity: _controlsVisible ? 1 : 0,
+          duration: _overlayAnimationDuration,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: EdgeInsets.only(
+                right: _fullscreenSafePadding.right + 12,
+              ),
+              child: _buildFullscreenToolbarIconButton(
+                icon:
+                    widget.orientationLocked
+                        ? Icons.lock_rounded
+                        : Icons.lock_open_rounded,
+                onPressed: widget.onToggleOrientationLock!,
+                buttonSize: _fullscreenSideActionButtonSize,
+                iconSize: _fullscreenSideActionIconSize,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildLoadingCard() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -1973,13 +2012,15 @@ class _VideoPlayerMaterialControlsState extends State<VideoPlayerMaterialControl
   Widget _buildFullscreenToolbarIconButton({
     required IconData icon,
     required VoidCallback onPressed,
+    double buttonSize = _fullscreenTopActionHeight,
+    double iconSize = 20,
   }) {
     return IconButton(
       onPressed: onPressed,
       padding: EdgeInsets.zero,
-      constraints: const BoxConstraints.tightFor(
-        width: _fullscreenTopActionHeight,
-        height: _fullscreenTopActionHeight,
+      constraints: BoxConstraints.tightFor(
+        width: buttonSize,
+        height: buttonSize,
       ),
       style: IconButton.styleFrom(
         backgroundColor: Colors.black.withValues(alpha: 0.42),
@@ -1993,7 +2034,7 @@ class _VideoPlayerMaterialControlsState extends State<VideoPlayerMaterialControl
       ),
       icon: Icon(
         icon,
-        size: 20,
+        size: iconSize,
       ),
     );
   }
@@ -2150,6 +2191,7 @@ class _VideoPlayerMaterialControlsState extends State<VideoPlayerMaterialControl
             _buildPausedBackdrop(),
             _buildBottomScrim(),
             _buildCenterOverlay(),
+            _buildFullscreenSideActions(),
             Positioned(
               top: 0,
               left: 0,

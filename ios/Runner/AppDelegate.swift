@@ -6,6 +6,7 @@ import AVKit
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private let audioSessionChannelName = "bracket/audio_session"
+  private let orientationChannelName = "bracket/orientation"
   private let airPlayRoutePickerViewType = "bracket/airplay_route_picker"
 
   override func application(
@@ -47,6 +48,24 @@ import AVKit
       }
     }
 
+    let orientationChannel = FlutterMethodChannel(
+      name: orientationChannelName,
+      binaryMessenger: registrar.messenger()
+    )
+    orientationChannel.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
+      guard let self else {
+        result(FlutterError(code: "unavailable", message: "AppDelegate released", details: nil))
+        return
+      }
+
+      switch call.method {
+      case "getCurrentDeviceOrientation":
+        result(self.currentDeviceOrientation())
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+
     do {
       _ = try configurePlaybackAudioSession()
     } catch {
@@ -66,6 +85,29 @@ import AVKit
       "mode": session.mode.rawValue,
       "outputs": outputs,
     ]
+  }
+
+  private func currentDeviceOrientation() -> String? {
+    guard
+      let windowScene = UIApplication.shared.connectedScenes
+        .compactMap({ $0 as? UIWindowScene })
+        .first
+    else {
+      return nil
+    }
+
+    switch windowScene.interfaceOrientation {
+    case .portrait:
+      return "portraitUp"
+    case .portraitUpsideDown:
+      return "portraitDown"
+    case .landscapeLeft:
+      return "landscapeLeft"
+    case .landscapeRight:
+      return "landscapeRight"
+    default:
+      return nil
+    }
   }
 }
 

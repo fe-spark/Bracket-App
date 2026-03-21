@@ -62,6 +62,8 @@ class Player extends StatefulWidget {
 class _PlayerState extends State<Player> {
   static const MethodChannel _audioSessionChannel =
       MethodChannel('bracket/audio_session');
+  static const MethodChannel _orientationChannel =
+      MethodChannel('bracket/orientation');
 
   final Throttler _throttler = Throttler(milliseconds: 5000);
   final ValueNotifier<int> _fullscreenRevision = ValueNotifier<int>(0);
@@ -76,6 +78,7 @@ class _PlayerState extends State<Player> {
   double _lastAudibleVolume = 100.0;
 
   bool _presentingFullscreen = false;
+  bool _fullscreenOrientationLocked = false;
   bool _advancingToNextEpisode = false;
   bool _lastPlaying = false;
   bool _lastCompleted = false;
@@ -380,22 +383,12 @@ class _PlayerState extends State<Player> {
   Future<void> _enterFullscreen() async {
     try {
       if (Platform.isAndroid || Platform.isIOS) {
-        final orientations =
-            _isPortraitVideo
-                ? const [
-                    DeviceOrientation.portraitUp,
-                    DeviceOrientation.portraitDown,
-                  ]
-                : const [
-                    DeviceOrientation.landscapeLeft,
-                    DeviceOrientation.landscapeRight,
-                  ];
         await Future.wait([
           SystemChrome.setEnabledSystemUIMode(
             SystemUiMode.immersiveSticky,
             overlays: [],
           ),
-          SystemChrome.setPreferredOrientations(orientations),
+          _applyFullscreenOrientations(),
         ]);
       }
     } catch (error) {
@@ -423,6 +416,7 @@ class _PlayerState extends State<Player> {
     if (_presentingFullscreen) return;
     _setPlayerState(() {
       _presentingFullscreen = true;
+      _fullscreenOrientationLocked = false;
     });
     await _enterFullscreen();
     if (!mounted) return;
@@ -452,9 +446,65 @@ class _PlayerState extends State<Player> {
     } finally {
       _setPlayerState(() {
         _presentingFullscreen = false;
+        _fullscreenOrientationLocked = false;
       });
       await _exitFullscreen();
     }
+  }
+
+  List<DeviceOrientation> get _preferredFullscreenOrientations =>
+      _isPortraitVideo
+          ? const [
+              DeviceOrientation.portraitUp,
+              DeviceOrientation.portraitDown,
+            ]
+          : const [
+              DeviceOrientation.landscapeLeft,
+              DeviceOrientation.landscapeRight,
+            ];
+
+  Future<DeviceOrientation?> _readCurrentDeviceOrientation() async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return null;
+    }
+    try {
+      final value = await _orientationChannel.invokeMethod<String>(
+        'getCurrentDeviceOrientation',
+      );
+      switch (value) {
+        case 'portraitUp':
+          return DeviceOrientation.portraitUp;
+        case 'portraitDown':
+          return DeviceOrientation.portraitDown;
+        case 'landscapeLeft':
+          return DeviceOrientation.landscapeLeft;
+        case 'landscapeRight':
+          return DeviceOrientation.landscapeRight;
+      }
+    } catch (error) {
+      debugPrint('Failed to read current device orientation: $error');
+    }
+    return null;
+  }
+
+  Future<void> _applyFullscreenOrientations() async {
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (_fullscreenOrientationLocked) {
+      final current =
+          await _readCurrentDeviceOrientation() ??
+          _preferredFullscreenOrientations.first;
+      await SystemChrome.setPreferredOrientations([current]);
+      return;
+    }
+    await SystemChrome.setPreferredOrientations(_preferredFullscreenOrientations);
+  }
+
+  Future<void> _toggleFullscreenOrientationLock() async {
+    if (!_presentingFullscreen) return;
+    _setPlayerState(() {
+      _fullscreenOrientationLocked = !_fullscreenOrientationLocked;
+    });
+    await _applyFullscreenOrientations();
   }
 
   _CurrentMedia? _resolveCurrentMedia() {
@@ -625,6 +675,13 @@ class _PlayerState extends State<Player> {
             controller: controller,
             isFullscreen: isFullscreen,
             onToggleFullscreen: onToggleFullscreen,
+            orientationLocked: _fullscreenOrientationLocked,
+            onToggleOrientationLock:
+                isFullscreen
+                    ? () {
+                        unawaited(_toggleFullscreenOrientationLock());
+                      }
+                    : null,
             onPlayRequestedChanged: _setPlayRequested,
             title: Text(
               titleText,

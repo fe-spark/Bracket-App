@@ -3,6 +3,7 @@ package com.spark.bracket
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.ContextThemeWrapper
+import android.view.Surface
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -16,6 +17,7 @@ import java.util.concurrent.Executors
 class MainActivity : FlutterActivity() {
     companion object {
         private const val MEDIA_ROUTE_CHANNEL = "bracket/media_route_picker"
+        private const val ORIENTATION_CHANNEL = "bracket/orientation"
     }
 
     private val castExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -44,6 +46,19 @@ class MainActivity : FlutterActivity() {
                         return@setMethodCallHandler
                     }
                     presentDevicePicker(mediaRequest, result)
+                }
+
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            ORIENTATION_CHANNEL,
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getCurrentDeviceOrientation" -> {
+                    result.success(currentDeviceOrientation())
                 }
 
                 else -> result.notImplemented()
@@ -212,6 +227,23 @@ class MainActivity : FlutterActivity() {
         dismissProgressDialog()
         devicePickerDialog?.dismiss()
         devicePickerDialog = null
+    }
+
+    private fun currentDeviceOrientation(): String {
+        val rotation =
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                display?.rotation ?: Surface.ROTATION_0
+            } else {
+                @Suppress("DEPRECATION")
+                windowManager.defaultDisplay.rotation
+            }
+
+        return when (rotation) {
+            Surface.ROTATION_90 -> "landscapeLeft"
+            Surface.ROTATION_180 -> "portraitDown"
+            Surface.ROTATION_270 -> "landscapeRight"
+            else -> "portraitUp"
+        }
     }
 
     private val Int.dp: Int
